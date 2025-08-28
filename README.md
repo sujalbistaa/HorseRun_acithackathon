@@ -1,7 +1,7 @@
 <br/>
 <p align="center">
   <a href="https://github.com/sujalbistaa/HorseRun_acithackathon">
-    <img src="https://drive.google.com/file/d/1SOpzn9EiDUtHGfLSddBzANFuFKrSveyf/view" alt="Swasthya AI Logo" width="100" height="100">
+    <img src="https://github.com/user-attachments/assets/fe230093-4dd7-4b1f-aa60-af898d91571d" alt="Swasthya AI Logo" width="120" height="120">
   </a>
 
   <h1 align="center">Swasthya AI 🩺</h1>
