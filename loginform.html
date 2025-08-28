@@ -424,12 +424,18 @@
                         localStorage.removeItem('swasthya_remember');
                     }
 
-                    // Redirect to dashboard or main page after successful login
+                    // Redirect to appropriate dashboard based on user role
                     setTimeout(() => {
-                        // You can redirect to a dashboard page or back to index
-                        window.location.href = 'dashboard.html';
-                        // Or create a dashboard.html page
-                        // window.location.href = 'dashboard.html';
+                        const userRole = result.data.user.user_metadata?.role || result.data.user.user_metadata?.user_type;
+                        
+                        if (userRole === 'patient') {
+                            window.location.href = 'patient-dashboard.html';
+                        } else if (userRole === 'doctor') {
+                            window.location.href = 'doctor-dashboard.html';
+                        } else {
+                            // Fallback to general dashboard
+                            window.location.href = 'dashboard.html';
+                        }
                     }, 1500);
                 } else {
                     window.AuthUtils.utils.showMessage(result.error, 'error');
@@ -466,10 +472,18 @@
                 const { data: { user } } = await window.AuthUtils.auth.getCurrentUser();
 
                 if (user) {
-                    // User is already logged in, redirect to dashboard
+                    // User is already logged in, redirect to appropriate dashboard
                     window.AuthUtils.utils.showMessage('You are already logged in!', 'success');
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
+                        const userRole = user.user_metadata?.role || user.user_metadata?.user_type;
+                        
+                        if (userRole === 'patient') {
+                            window.location.href = 'patient-dashboard.html';
+                        } else if (userRole === 'doctor') {
+                            window.location.href = 'doctor-dashboard.html';
+                        } else {
+                            window.location.href = 'dashboard.html';
+                        }
                     }, 1000);
                 } else {
                     // Check for error parameters in URL

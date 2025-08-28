@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swasthya AI - Welcome & Onboarding</title>
+    <title>Swasthya AI - Complete Your Profile</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="supabase-config.js"></script>
     <style>
         :root {
             --dark-blue: #0a1d37;
@@ -13,6 +16,9 @@
             --accent-teal-light: #50e3c2;
             --text-primary: #e6f1ff;
             --text-secondary: #a8b2d1;
+            --success-green: #4CAF50;
+            --warning-orange: #ff9800;
+            --error-red: #f44336;
         }
 
         * {
@@ -47,7 +53,7 @@
             position: relative;
             z-index: 10;
             width: 90%;
-            max-width: 450px;
+            max-width: 500px;
             padding: 30px 20px;
         }
 
@@ -68,7 +74,7 @@
         .logo span {
             color: var(--accent-teal);
         }
-        
+
         .logo::after {
             content: "";
             position: absolute;
@@ -88,34 +94,59 @@
 
         .card {
             background: rgba(30, 58, 95, 0.15);
-            border-radius: 12px;
+            border-radius: 16px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(0, 198, 167, 0.1);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2),
                         0 0 15px rgba(0, 198, 167, 0.1);
-            padding: 35px 30px;
+            padding: 40px 35px;
             transition: box-shadow 0.4s ease;
         }
 
         .card:hover {
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25), 
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25),
                         0 0 20px rgba(0, 198, 167, 0.15);
         }
 
         h1 {
             color: var(--accent-teal);
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             font-size: 1.8rem;
             text-shadow: 0 0 10px rgba(0, 198, 167, 0.2);
         }
 
-        .welcome-text {
+        .subtitle {
             color: var(--text-secondary);
             text-align: center;
             margin-bottom: 30px;
             font-size: 0.95rem;
             line-height: 1.5;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(0, 198, 167, 0.2);
+            border-radius: 2px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-teal), var(--accent-teal-light));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
         }
 
         .form-group {
@@ -131,7 +162,7 @@
             font-weight: 500;
         }
 
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 12px 15px;
             border-radius: 8px;
@@ -151,15 +182,63 @@
             padding-right: 2.5rem;
         }
 
-        input:focus, select:focus {
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--accent-teal);
             box-shadow: 0 0 10px rgba(0, 198, 167, 0.2);
         }
 
+        .role-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .role-option {
+            padding: 15px;
+            border: 2px solid rgba(0, 198, 167, 0.2);
+            border-radius: 8px;
+            background: rgba(10, 29, 55, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .role-option:hover {
+            border-color: var(--accent-teal);
+            background: rgba(0, 198, 167, 0.1);
+        }
+
+        .role-option.selected {
+            border-color: var(--accent-teal);
+            background: rgba(0, 198, 167, 0.2);
+        }
+
+        .role-option i {
+            font-size: 1.5rem;
+            color: var(--accent-teal);
+            margin-bottom: 8px;
+        }
+
+        .role-option h4 {
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .role-option p {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
         .btn {
-            width: 100%;
-            padding: 12px;
+            padding: 12px 24px;
             border-radius: 8px;
             border: none;
             font-weight: 600;
@@ -167,13 +246,19 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            margin-top: 10px;
+            font-size: 0.9rem;
         }
 
         .btn-primary {
             background: linear-gradient(45deg, var(--accent-teal), var(--accent-teal-light));
             color: var(--dark-blue);
             box-shadow: 0 4px 12px rgba(0, 198, 167, 0.25);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-teal);
+            border: 2px solid var(--accent-teal);
         }
 
         .btn:hover {
@@ -185,94 +270,473 @@
             background: linear-gradient(45deg, #00d9b5, #59f2cf);
         }
 
+        .btn-secondary:hover {
+            background: rgba(0, 198, 167, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .form-actions .btn {
+            flex: 1;
+        }
+
+        .user-info {
+            background: rgba(0, 198, 167, 0.1);
+            border: 1px solid rgba(0, 198, 167, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .user-info h3 {
+            color: var(--accent-teal);
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .user-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: var(--accent-teal);
+        }
+
+        .loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         @media (max-width: 480px) {
             .card {
                 padding: 25px 20px;
+            }
+            .role-options {
+                grid-template-columns: 1fr;
+            }
+            .form-actions {
+                flex-direction: column;
             }
         }
     </style>
 </head>
 <body>
     <div class="background-gradient"></div>
-    
+
     <div class="container">
         <div class="logo-container">
-            <a href="#" class="logo">Swasthya<span>AI</span></a>
+            <a href="index.html" class="logo">Swasthya<span>AI</span></a>
         </div>
-        
+
         <div class="card">
-            <h1>Welcome to Swasthya AI</h1>
-            <p class="welcome-text">Let's set up your profile. This will help us personalize your experience on the platform.</p>
-            
+            <h1>Complete Your Profile</h1>
+            <p class="subtitle">Help us personalize your experience by telling us a bit about yourself.</p>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <!-- User Info Display -->
+            <div class="user-info" id="userInfo">
+                <h3>Welcome!</h3>
+                <p>Loading your information...</p>
+            </div>
+
             <form id="onboardingForm">
-                <div class="form-group">
-                    <label for="displayName">Display Name</label>
-                    <input type="text" id="displayName" placeholder="e.g., Dr. Anjali Sharma or Ram Thapa" required>
+                <!-- Step 1: Role Selection -->
+                <div class="form-step active" id="step1">
+                    <h3 style="color: var(--accent-teal); margin-bottom: 15px; text-align: center;">What is your role?</h3>
+                    <div class="role-options">
+                        <div class="role-option" data-role="patient">
+                            <i class="fas fa-user"></i>
+                            <h4>Patient</h4>
+                            <p>Seeking healthcare services</p>
+                        </div>
+                        <div class="role-option" data-role="doctor">
+                            <i class="fas fa-user-md"></i>
+                            <h4>Doctor</h4>
+                            <p>Healthcare professional or clinic</p>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="userRole">What is your role?</label>
-                    <select id="userRole" required>
-                        <option value="" disabled selected>Select your role...</option>
-                        <option value="doctor">Doctor / Clinician</option>
-                        <option value="patient">Patient</option>
-                    </select>
+
+                <!-- Step 2: Patient Information (for patients only) -->
+                <div class="form-step" id="step2-patient" style="display: none;">
+                    <div class="form-group">
+                        <label for="patientName">Full Name</label>
+                        <input type="text" id="patientName" placeholder="e.g., John Doe" required>
+                        <small style="color: var(--text-secondary); font-size: 0.8rem;">Your full name for medical records</small>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <p style="color: var(--text-secondary);">🎉 You're all set! Click finish to access your dashboard.</p>
+                    </div>
                 </div>
-                
-                <button type="submit" class="btn btn-primary">Complete Setup</button>
+
+                <!-- Step 2: Doctor Personal Info (for doctors only) -->
+                <div class="form-step" id="step2-doctor" style="display: none;">
+                    <div class="form-group">
+                        <label for="doctorName">Full Name</label>
+                        <input type="text" id="doctorName" placeholder="e.g., Dr. Sarah Johnson" required>
+                        <small style="color: var(--text-secondary); font-size: 0.8rem;">Your professional name as it appears on credentials</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="specialization">Specialization</label>
+                        <input type="text" id="specialization" placeholder="e.g., Cardiology, Radiology, General Practice" required>
+                        <small style="color: var(--text-secondary); font-size: 0.8rem;">Your medical specialty or area of expertise</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="licenseNumber">Medical License Number</label>
+                        <input type="text" id="licenseNumber" placeholder="Your medical license number" required>
+                        <small style="color: var(--text-secondary); font-size: 0.8rem;">Required for verification purposes</small>
+                    </div>
+                </div>
+
+                <!-- Step 3: Doctor Professional Info (for doctors only) -->
+                <div class="form-step" id="step3-doctor" style="display: none;">
+                    <div class="form-group">
+                        <label for="organization">Organization/Hospital</label>
+                        <input type="text" id="organization" placeholder="e.g., City General Hospital" required>
+                        <small style="color: var(--text-secondary); font-size: 0.8rem;">Hospital, clinic, or organization you work for</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="experience">Years of Experience</label>
+                        <select id="experience" required>
+                            <option value="" disabled selected>Select your experience level...</option>
+                            <option value="0-2">0-2 years</option>
+                            <option value="3-5">3-5 years</option>
+                            <option value="6-10">6-10 years</option>
+                            <option value="11-20">11-20 years</option>
+                            <option value="20+">20+ years</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactNumber">Contact Number</label>
+                        <input type="tel" id="contactNumber" placeholder="Your professional contact number" required>
+                        <small style="color: var(--text-secondary); font-size: 0.8rem;">For patient appointments and professional communication</small>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="prevBtn" style="display: none;">Previous</button>
+                    <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+                </div>
             </form>
+
+            <div class="loading" id="loading">
+                <i class="fas fa-circle-notch fa-2x"></i>
+                <p style="margin-top: 10px;">Saving your profile...</p>
+            </div>
         </div>
     </div>
-    
+
     <script>
-        // Handle form submission
-        document.getElementById('onboardingForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // 1. Get values from the form
-            const displayName = document.getElementById('displayName').value;
-            const userRole = document.getElementById('userRole').value;
-            
-            // 2. Create a user object
-            const userProfile = {
-                name: displayName,
-                role: userRole,
-                onboarded: true
-            };
-            
-            // 3. Store the user object in localStorage
-            // In a real app, you would send this to a server.
-            // JSON.stringify converts the object to a string for storage.
-            localStorage.setItem('swasthyaAiUserProfile', JSON.stringify(userProfile));
-            
-            // 4. Provide feedback and redirect
-            const submitBtn = this.querySelector('.btn-primary');
-            submitBtn.innerHTML = '<i class="fas fa-check"></i> Profile Saved!';
-            
-            // Simulate redirecting to a dashboard after a short delay
-            setTimeout(() => {
-                alert(`Welcome, ${displayName}! Your profile has been saved. You will now be redirected to the ${userRole} dashboard.`);
-                // In a real application, you would redirect like this:
-                // window.location.href = '/dashboard.html';
-                
-                // For this demo, we'll just reset the button
-                submitBtn.innerHTML = 'Complete Setup';
-            }, 1500);
+        // Form state
+        let currentStep = 1;
+        let totalSteps = 2; // Will be updated based on role
+        let selectedRole = '';
+        let userData = {};
+
+        // DOM elements
+        const form = document.getElementById('onboardingForm');
+        const progressFill = document.getElementById('progressFill');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const loading = document.getElementById('loading');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadUserData();
+            setupEventListeners();
+            updateProgress();
+            updateButtons();
         });
 
-        // Optional: Check if user is already onboarded
-        // If so, you could redirect them immediately
-        (function checkOnboardingStatus() {
-            const userProfileString = localStorage.getItem('swasthyaAiUserProfile');
-            if (userProfileString) {
-                const userProfile = JSON.parse(userProfileString);
-                if (userProfile.onboarded) {
-                    console.log('User already onboarded. Redirecting...');
-                    // alert('Welcome back! Redirecting to your dashboard.');
-                    // window.location.href = '/dashboard.html';
+        // Load user data from Supabase
+        async function loadUserData() {
+            try {
+                const { data: { user }, error } = await window.AuthUtils.auth.getCurrentUser();
+
+                if (error || !user) {
+                    window.AuthUtils.utils.showMessage('Please log in first.', 'error');
+                    setTimeout(() => {
+                        window.location.href = 'loginform.html';
+                    }, 2000);
+                    return;
+                }
+
+                userData = user;
+                displayUserInfo(user);
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                window.AuthUtils.utils.showMessage('Error loading user data.', 'error');
+            }
+        }
+
+        // Display user info
+        function displayUserInfo(user) {
+            const userInfo = document.getElementById('userInfo');
+            const displayName = user.user_metadata?.full_name ||
+                               user.user_metadata?.name ||
+                               user.email.split('@')[0];
+
+            userInfo.innerHTML = `
+                <h3>Welcome, ${displayName}!</h3>
+                <p><strong>Email:</strong> ${user.email}</p>
+                <p><strong>Signed up:</strong> ${new Date(user.created_at).toLocaleDateString()}</p>
+                <p><strong>Provider:</strong> ${user.app_metadata?.provider || 'email'}</p>
+            `;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Role selection
+            document.querySelectorAll('.role-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.role-option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedRole = this.dataset.role;
+                    
+                    // Update total steps based on role
+                    if (selectedRole === 'patient') {
+                        totalSteps = 2; // Role + Name only
+                    } else if (selectedRole === 'doctor') {
+                        totalSteps = 3; // Role + Personal + Professional
+                    }
+                });
+            });
+
+            // Navigation buttons
+            prevBtn.addEventListener('click', () => navigateStep(-1));
+            nextBtn.addEventListener('click', () => navigateStep(1));
+
+            // Form submission (on final step)
+            form.addEventListener('submit', handleFormSubmission);
+        }
+
+        // Navigate between steps
+        function navigateStep(direction) {
+            if (direction > 0 && !validateCurrentStep()) {
+                return;
+            }
+
+            // Handle step progression based on role
+            if (direction > 0) {
+                if (currentStep === 1 && selectedRole) {
+                    currentStep = 2;
+                    showRoleBasedStep();
+                } else if (currentStep === 2) {
+                    if (selectedRole === 'patient') {
+                        // Patient goes directly to submission
+                        handleFormSubmission();
+                        return;
+                    } else if (selectedRole === 'doctor') {
+                        currentStep = 3;
+                        showStep('step3-doctor');
+                    }
+                } else if (currentStep === 3 && selectedRole === 'doctor') {
+                    // Doctor submits after step 3
+                    handleFormSubmission();
+                    return;
+                }
+            } else {
+                // Going back
+                currentStep--;
+                if (currentStep === 1) {
+                    showStep('step1');
+                } else if (currentStep === 2) {
+                    showRoleBasedStep();
                 }
             }
-        })();
+
+            updateProgress();
+            updateButtons();
+        }
+
+        // Show role-based step 2
+        function showRoleBasedStep() {
+            // Hide all steps first
+            document.querySelectorAll('.form-step').forEach(step => {
+                step.style.display = 'none';
+                step.classList.remove('active');
+            });
+
+            if (selectedRole === 'patient') {
+                const patientStep = document.getElementById('step2-patient');
+                patientStep.style.display = 'block';
+                patientStep.classList.add('active');
+            } else if (selectedRole === 'doctor') {
+                const doctorStep = document.getElementById('step2-doctor');
+                doctorStep.style.display = 'block';
+                doctorStep.classList.add('active');
+            }
+        }
+
+        // Show specific step
+        function showStep(stepId) {
+            document.querySelectorAll('.form-step').forEach(step => {
+                step.style.display = 'none';
+                step.classList.remove('active');
+            });
+            
+            const targetStep = document.getElementById(stepId);
+            if (targetStep) {
+                targetStep.style.display = 'block';
+                targetStep.classList.add('active');
+            }
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            progressFill.style.width = progress + '%';
+        }
+
+        // Update button visibility and text
+        function updateButtons() {
+            prevBtn.style.display = currentStep > 1 ? 'block' : 'none';
+            
+            // Update next button text based on step and role
+            if (currentStep === totalSteps || (currentStep === 2 && selectedRole === 'patient')) {
+                nextBtn.textContent = 'Finish Setup';
+                nextBtn.className = 'btn btn-success';
+            } else {
+                nextBtn.textContent = 'Next';
+                nextBtn.className = 'btn btn-primary';
+            }
+        }
+
+        // Validate current step
+        function validateCurrentStep() {
+            if (currentStep === 1) {
+                if (!selectedRole) {
+                    window.AuthUtils.utils.showMessage('Please select your role.', 'warning');
+                    return false;
+                }
+            } else if (currentStep === 2) {
+                if (selectedRole === 'patient') {
+                    const patientName = document.getElementById('patientName').value.trim();
+                    if (!patientName) {
+                        window.AuthUtils.utils.showMessage('Please enter your full name.', 'warning');
+                        return false;
+                    }
+                } else if (selectedRole === 'doctor') {
+                    const doctorName = document.getElementById('doctorName').value.trim();
+                    const specialization = document.getElementById('specialization').value.trim();
+                    const licenseNumber = document.getElementById('licenseNumber').value.trim();
+                    
+                    if (!doctorName) {
+                        window.AuthUtils.utils.showMessage('Please enter your full name.', 'warning');
+                        return false;
+                    }
+                    if (!specialization) {
+                        window.AuthUtils.utils.showMessage('Please enter your specialization.', 'warning');
+                        return false;
+                    }
+                    if (!licenseNumber) {
+                        window.AuthUtils.utils.showMessage('Please enter your medical license number.', 'warning');
+                        return false;
+                    }
+                }
+            } else if (currentStep === 3 && selectedRole === 'doctor') {
+                const organization = document.getElementById('organization').value.trim();
+                const experience = document.getElementById('experience').value;
+                const contactNumber = document.getElementById('contactNumber').value.trim();
+                
+                if (!organization) {
+                    window.AuthUtils.utils.showMessage('Please enter your organization.', 'warning');
+                    return false;
+                }
+                if (!experience) {
+                    window.AuthUtils.utils.showMessage('Please select your experience level.', 'warning');
+                    return false;
+                }
+                if (!contactNumber) {
+                    window.AuthUtils.utils.showMessage('Please enter your contact number.', 'warning');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        // Handle form submission
+        async function handleFormSubmission(e) {
+            if (e) e.preventDefault();
+
+            if (!validateCurrentStep()) {
+                return;
+            }
+
+            // Show loading
+            form.style.display = 'none';
+            loading.style.display = 'block';
+
+            try {
+                // Collect form data based on role
+                let profileData = {
+                    displayName: '',
+                    role: selectedRole,
+                    email: userData.email
+                };
+
+                if (selectedRole === 'patient') {
+                    profileData.displayName = document.getElementById('patientName').value.trim();
+                } else if (selectedRole === 'doctor') {
+                    profileData.displayName = document.getElementById('doctorName').value.trim();
+                    profileData.specialization = document.getElementById('specialization').value.trim();
+                    profileData.licenseNumber = document.getElementById('licenseNumber').value.trim();
+                    profileData.organization = document.getElementById('organization').value.trim();
+                    profileData.experience = document.getElementById('experience').value;
+                    profileData.contactNumber = document.getElementById('contactNumber').value.trim();
+                }
+
+                // Save to Supabase using database functions
+                const saveResult = await window.AuthUtils.database.saveUserProfile(userData.id, profileData);
+
+                if (!saveResult.success) {
+                    console.error('Error saving profile:', saveResult.error);
+                    window.AuthUtils.utils.showMessage('Error saving profile. Please try again.', 'error');
+                    form.style.display = 'block';
+                    loading.style.display = 'none';
+                    return;
+                }
+
+                // Success
+                window.AuthUtils.utils.showMessage('Profile completed successfully!', 'success');
+
+                // Redirect to appropriate dashboard based on role
+                setTimeout(() => {
+                    if (selectedRole === 'patient') {
+                        window.location.href = 'patient-dashboard.html';
+                    } else if (selectedRole === 'doctor') {
+                        window.location.href = 'doctor-dashboard.html';
+                    } else {
+                        window.location.href = 'dashboard.html'; // Fallback
+                    }
+                }, 2000);
+
+            } catch (error) {
+                console.error('Profile save error:', error);
+                window.AuthUtils.utils.showMessage('An unexpected error occurred. Please try again.', 'error');
+                form.style.display = 'block';
+                loading.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>

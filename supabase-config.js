@@ -160,5 +160,77 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// Database Functions
+const database = {
+    // Create profiles table if it doesn't exist
+    async createProfilesTable() {
+        try {
+            // This would typically be done in Supabase SQL editor, but we can check if table exists
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('id')
+                .limit(1);
+
+            if (error && error.code === 'PGRST116') {
+                // Table doesn't exist, you might need to create it manually in Supabase
+                console.log('Profiles table does not exist. Please create it in Supabase SQL editor.');
+                return { success: false, error: 'Table does not exist' };
+            }
+
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+
+    // Save user profile
+    async saveUserProfile(userId, profileData) {
+        try {
+            const profileRecord = {
+                id: userId,
+                display_name: profileData.displayName,
+                role: profileData.role,
+                email: profileData.email,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+
+            // Add doctor-specific fields if role is doctor
+            if (profileData.role === 'doctor') {
+                if (profileData.specialization) profileRecord.specialization = profileData.specialization;
+                if (profileData.licenseNumber) profileRecord.license_number = profileData.licenseNumber;
+                if (profileData.organization) profileRecord.organization = profileData.organization;
+                if (profileData.experience) profileRecord.experience = profileData.experience;
+                if (profileData.contactNumber) profileRecord.contact_number = profileData.contactNumber;
+            }
+
+            const { data, error } = await supabase
+                .from('profiles')
+                .upsert(profileRecord);
+
+            if (error) throw error;
+            return { success: true, data };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+
+    // Get user profile
+    async getUserProfile(userId) {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .single();
+
+            if (error && error.code !== 'PGRST116') throw error;
+            return { success: true, data };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    }
+};
+
 // Export for use in other files
-window.AuthUtils = { auth, utils };
+window.AuthUtils = { auth, utils, database };

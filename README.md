@@ -53,6 +53,7 @@ This platform integrates AI-assisted diagnostics, predictive health analytics, a
 * **Seamless Telemedicine:** A secure, low-bandwidth video consultation platform connecting patients in remote areas with specialized doctors in cities.
 *  **Clinical Decision Support:** Provides real-time, evidence-based recommendations to clinicians at the point of care, reducing errors and improving treatment outcomes.
 *  **Secure & Compliant:** Built from the ground up with data privacy and security as a top priority, ensuring patient data is always protected.
+*  **User Authentication & Onboarding:** Complete authentication system with email/password and Google OAuth, including profile completion flow for new users.
 
 ---
 
@@ -97,6 +98,25 @@ To get a local copy up and running, follow these simple steps.
     npm run dev
     ```
     Your project will be running at `http://localhost:5173`.
+
+**Database Setup:**
+
+1. **Create Supabase Project:**
+   - Go to [supabase.com](https://supabase.com) and create a new project
+   - Note your project URL and anon key
+
+2. **Configure Authentication:**
+   - In your Supabase dashboard, go to Authentication > Settings
+   - Add your site URL: `http://127.0.0.1:3000` (for local development)
+   - Configure Google OAuth in Authentication > Providers
+
+3. **Set up Database Tables:**
+   - Go to SQL Editor in your Supabase dashboard
+   - Run the SQL script from `create_profiles_table.sql` to create the profiles table
+
+4. **Update Configuration:**
+   - Edit `config.js` with your Supabase project URL and anon key
+   - Update redirect URIs in Google OAuth settings to match your callback URL
 
 ---
 

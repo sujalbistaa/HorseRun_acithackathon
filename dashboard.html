@@ -342,7 +342,18 @@
                     return;
                 }
 
-                // User is authenticated, show dashboard
+                // Check user role and redirect to appropriate dashboard
+                const userRole = user.user_metadata?.role || user.user_metadata?.user_type;
+                
+                if (userRole === 'patient') {
+                    window.location.href = 'patient-dashboard.html';
+                    return;
+                } else if (userRole === 'doctor') {
+                    window.location.href = 'doctor-dashboard.html';
+                    return;
+                }
+
+                // Fallback: User is authenticated but no role defined, continue to general dashboard
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
 

@@ -295,11 +295,9 @@
                 <div class="form-group">
                     <label for="userType">I am a</label>
                     <select id="userType" required>
-                        <option value="" disabled selected>Select your professional role</option>
-                        <option value="clinician">Clinician (Doctor, Nurse)</option>
-                        <option value="radiologist">Radiologist / Technician</option>
-                        <option value="admin">Hospital Administrator</option>
-                        <option value="researcher">Researcher / Public Health Official</option>
+                        <option value="" disabled selected>Select your role</option>
+                        <option value="patient">Patient - Seeking healthcare services</option>
+                        <option value="doctor">Doctor - Healthcare professional or clinic</option>
                     </select>
                 </div>
                 
@@ -409,9 +407,9 @@
                     this.reset();
                     document.getElementById('passwordStrength').style.width = '0%';
 
-                    // Optional: Redirect to login after a delay
+                    // Redirect to onboarding to complete profile
                     setTimeout(() => {
-                        window.location.href = 'loginform.html';
+                        window.location.href = 'onboarding.html';
                     }, 3000);
                 } else {
                     window.AuthUtils.utils.showMessage(result.error, 'error');

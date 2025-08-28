@@ -66,10 +66,22 @@
 
                 if (data.session) {
                     console.log('Authentication successful:', data.session.user.email);
-                    // Redirect to dashboard on success
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
+                    
+                    // Check if user is from Google OAuth and needs onboarding
+                    const isGoogleUser = data.session.user.app_metadata?.provider === 'google';
+                    const hasProfile = data.session.user.user_metadata?.display_name;
+                    
+                    if (isGoogleUser && !hasProfile) {
+                        // Redirect Google users without profile to onboarding
+                        setTimeout(() => {
+                            window.location.href = 'onboarding.html';
+                        }, 1500);
+                    } else {
+                        // Redirect to dashboard for existing users or email/password users
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 1500);
+                    }
                 } else {
                     console.log('No session found, redirecting to login');
                     setTimeout(() => {
