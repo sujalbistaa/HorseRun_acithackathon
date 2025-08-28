@@ -40,7 +40,7 @@ Nepal's healthcare landscape faces significant hurdles: a strained doctor-patien
 
 This platform integrates AI-assisted diagnostics, predictive health analytics, and a seamless telemedicine service to bring world-class healthcare to every corner of the nation, from bustling urban centers like Kathmandu to the most remote villages.
 
-![Swasthya AI Dashboard](
+
 <p align="center">
   <img src="https://github.com/user-attachments/assets/e66a5376-025d-4695-ab69-c5ec27307005" alt="Swasthya AI Dashboard" width="100%">
 </p>)
