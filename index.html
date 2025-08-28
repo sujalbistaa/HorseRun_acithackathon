@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swasthya AI | Revolutionary Healthcare Powered by AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-blue: #003d6b;
+            --secondary-blue: #0074d9;
+            --accent-teal: #00bcd4;
+            --medical-green: #00e676;
+            --light-green: #81c784;
+            --text-primary: #ffffff;
+            --text-secondary: #b0bec5;
+            --dark-bg: #0a1929;
+            --card-bg: rgba(0, 61, 107, 0.4);
+            --glassmorphism: rgba(0, 116, 217, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--primary-blue) 100%);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--medical-green), var(--light-green));
+            color: var(--dark-bg);
+            font-weight: 600;
+            padding: 14px 28px;
+            border-radius: 50px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 8px 32px rgba(0, 230, 118, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 12px 40px rgba(0, 230, 118, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--medical-green);
+            border: 2px solid var(--medical-green);
+            box-shadow: 0 4px 20px rgba(0, 230, 118, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 230, 118, 0.1);
+            border-color: var(--light-green);
+            color: var(--light-green);
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 25, 41, 0.9);
+            border-bottom: 1px solid rgba(0, 230, 118, 0.1);
+        }
+
+        header.scrolled {
+            padding: 12px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-decoration: none;
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            color: var(--medical-green);
+            font-weight: 400;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 35px;
+        }
+
+        nav ul li a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav ul li a:hover {
+            color: var(--medical-green);
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: var(--medical-green);
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle at 30% 50%, rgba(0, 230, 118, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 20%, rgba(0, 188, 212, 0.1) 0%, transparent 50%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            max-width: 700px;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 24px;
+            line-height: 1.1;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--medical-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero h1 span {
+            color: var(--medical-green);
+            display: block;
+            font-weight: 400;
+            font-size: 3.2rem;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .hero-visual {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50%;
+            height: 80%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .medical-icon {
+            font-size: 20rem;
+            color: rgba(0, 230, 118, 0.1);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+        }
+
+        .floating-element {
+            position: absolute;
+            color: rgba(0, 230, 118, 0.3);
+            animation: float 6s ease-in-out infinite;
+            font-size: 24px;
+        }
+
+        .floating-element:nth-child(1) { top: 20%; left: 70%; animation-delay: 0s; }
+        .floating-element:nth-child(2) { top: 60%; right: 10%; animation-delay: 2s; }
+        .floating-element:nth-child(3) { top: 80%; left: 75%; animation-delay: 4s; }
+        .floating-element:nth-child(4) { top: 40%; right: 20%; animation-delay: 1s; }
+
+        /* Section Styles */
+        .section {
+            padding: 120px 0;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-header h2 {
+            font-size: 3rem;
+            margin-bottom: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--medical-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Market Opportunity */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            border: 1px solid rgba(0, 230, 118, 0.2);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--medical-green), var(--accent-teal));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 60px rgba(0, 230, 118, 0.2);
+            border-color: var(--medical-green);
+        }
+
+        .stat-card h3 {
+            color: var(--medical-green);
+            font-size: 3.2rem;
+            margin-bottom: 16px;
+            font-weight: 800;
+        }
+
+        .stat-card p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Problem & Solution */
+        .problem-solution-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: start;
+            margin-top: 60px;
+        }
+
+        .content-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid rgba(0, 230, 118, 0.1);
+            height: 100%;
+        }
+
+        .content-card h3 {
+            font-size: 2rem;
+            margin-bottom: 24px;
+            color: var(--medical-green);
+            font-weight: 700;
+        }
+
+        .problem-list, .solution-list {
+            margin-top: 24px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .problem-item:hover {
+            background: rgba(244, 67, 54, 0.1);
+        }
+
+        .solution-item:hover {
+            background: rgba(0, 230, 118, 0.1);
+        }
+
+        .list-item i {
+            margin-right: 16px;
+            margin-top: 4px;
+            font-size: 20px;
+        }
+
+        .problem-item i {
+            color: #f44336;
+        }
+
+        .solution-item i {
+            color: var(--medical-green);
+        }
+
+        /* Technology Features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            border: 1px solid rgba(0, 230, 118, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, rgba(0, 230, 118, 0.05), transparent 30%);
+            animation: rotate 6s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--medical-green);
+        }
+
+        .feature-card i {
+            color: var(--medical-green);
+            font-size: 3rem;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .feature-card h4 {
+            margin-bottom: 16px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Business Model */
+        .revenue-streams {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .revenue-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            border: 1px solid rgba(0, 230, 118, 0.1);
+            transition: all 0.4s ease;
+        }
+
+        .revenue-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--medical-green);
+            box-shadow: 0 16px 40px rgba(0, 230, 118, 0.2);
+        }
+
+        .revenue-card i {
+            font-size: 2.8rem;
+            color: var(--medical-green);
+            margin-bottom: 24px;
+        }
+
+        .revenue-card h4 {
+            margin-bottom: 16px;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .revenue-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Traction Section */
+        .metrics-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px 20px;
+            text-align: center;
+            border: 1px solid rgba(0, 230, 118, 0.1);
+            transition: all 0.4s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 40px rgba(0, 230, 118, 0.2);
+        }
+
+        .metric-card h3 {
+            font-size: 2.8rem;
+            color: var(--medical-green);
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+
+        .metric-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Team Section */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .team-member {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            border: 1px solid rgba(0, 230, 118, 0.1);
+            transition: all 0.4s ease;
+        }
+
+        .team-member:hover {
+            transform: translateY(-12px);
+            border-color: var(--medical-green);
+            box-shadow: 0 20px 60px rgba(0, 230, 118, 0.15);
+        }
+
+        .team-member img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--medical-green);
+            margin-bottom: 24px;
+        }
+
+        .team-member h3 {
+            margin-bottom: 8px;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .team-member .role {
+            color: var(--medical-green);
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .team-member .bio {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 120px 0;
+            text-align: center;
+            position: relative;
+            background: linear-gradient(135deg, rgba(0, 230, 118, 0.1) 0%, rgba(0, 188, 212, 0.1) 100%);
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .cta-content h2 {
+            font-size: 3.2rem;
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
+
+        .cta-content p {
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        .contact-form {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 50px 40px;
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid rgba(0, 230, 118, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(0, 61, 107, 0.3);
+            border: 1px solid rgba(0, 230, 118, 0.2);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--medical-green);
+            box-shadow: 0 0 20px rgba(0, 230, 118, 0.2);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            height: 400px;
+            border: 1px solid rgba(0, 230, 118, 0.1);
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-bg) 100%);
+            padding: 80px 0 40px;
+            border-top: 1px solid rgba(0, 230, 118, 0.1);
+        }
+
+        .footer-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 60px;
+        }
+
+        .footer-about h3 {
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+            color: var(--medical-green);
+            font-weight: 700;
+        }
+
+        .footer-about p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 16px;
+        }
+
+        .footer-social a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            font-size: 20px;
+            border: 1px solid rgba(0, 230, 118, 0.2);
+        }
+
+        .footer-social a:hover {
+            background: var(--medical-green);
+            color: var(--dark-bg);
+            transform: translateY(-4px);
+        }
+
+        .footer-links h3 {
+            font-size: 1.3rem;
+            margin-bottom: 24px;
+            color: var(--medical-green);
+            font-weight: 600;
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links ul li a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-links ul li a:hover {
+            color: var(--medical-green);
+            padding-left: 8px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid rgba(0, 230, 118, 0.1);
+            margin-top: 60px;
+            color: var(--text-secondary);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 1200px) {
+            .hero h1 { font-size: 3.2rem; }
+            .team-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media screen and (max-width: 992px) {
+            .hero h1 { font-size: 2.8rem; }
+            .stats-grid, .revenue-streams, .features-grid { grid-template-columns: repeat(2, 1fr); }
+            .problem-solution-grid { grid-template-columns: 1fr; gap: 40px; }
+            .footer-container { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media screen and (max-width: 768px) {
+            .hero { text-align: center; padding: 150px 0 100px; }
+            .hero-visual { display: none; }
+            .metrics-container { grid-template-columns: repeat(2, 1fr); }
+            .team-grid { grid-template-columns: 1fr; }
+            .header-container { flex-direction: column; gap: 20px; }
+            nav ul { flex-wrap: wrap; justify-content: center; }
+            nav ul li { margin: 5px 15px; }
+        }
+
+        @media screen and (max-width: 576px) {
+            .stats-grid, .revenue-streams, .features-grid, .metrics-container { grid-template-columns: 1fr; }
+            .footer-container { grid-template-columns: 1fr; }
+            .section { padding: 80px 0; }
+            .hero h1 { font-size: 2.2rem; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <a href="#" class="logo">Swasthya<span>AI</span></a>
+            <nav>
+                <ul>
+                    <li><a href="#market">Market</a></li>
+                    <li><a href="#solution">Solution</a></li>
+                    <li><a href="#technology">Technology</a></li>
+                    <li><a href="#business">Business Model</a></li>
+                    <li><a href="#traction">Traction</a></li>
+                    <li><a href="#team">Team</a></li>
+                    <li><a href="#contact" class="btn btn-secondary">Contact Us</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="floating-elements">
+            <div class="floating-element"><i class="fas fa-heartbeat"></i></div>
+            <div class="floating-element"><i class="fas fa-brain"></i></div>
+            <div class="floating-element"><i class="fas fa-dna"></i></div>
+            <div class="floating-element"><i class="fas fa-microscope"></i></div>
+        </div>
+        <div class="container">
+            <div class="hero-content">
+                <h1>Revolutionizing Healthcare with <span>Artificial Intelligence</span></h1>
+                <p>SwasthyaAI harnesses cutting-edge machine learning to provide intelligent diagnostic assistance, personalized treatment recommendations, and predictive healthcare insights for medical professionals worldwide.</p>
+                <div class="hero-buttons">
+                    <a href="#" class="btn">Download Investor Deck</a>
+                    <a href="#contact" class="btn btn-secondary">Schedule Demo</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="medical-icon">
+                    <i class="fas fa-stethoscope"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section class="section" id="solution">
+        <div class="container">
+            <div class="section-header">
+                <h2>Our Solution</h2>
+                <p>SwasthyaAI delivers comprehensive AI-powered healthcare solutions that enhance diagnostic accuracy, streamline workflows, and improve patient outcomes.</p>
+            </div>
+            <div class="problem-solution-grid">
+                <div class="content-card">
+                    <h3><i class="fas fa-lightbulb" style="color: var(--medical-green); margin-right: 12px;"></i>AI-Powered Healthcare Platform</h3>
+                    <p>Our advanced machine learning platform integrates seamlessly with existing healthcare systems to provide intelligent diagnostic support and predictive analytics.</p>
+                    <div class="solution-list">
+                        <div class="list-item solution-item">
+                            <i class="fas fa-brain"></i>
+                            <div>
+                                <strong>Intelligent Diagnostics:</strong> AI algorithms analyze medical imaging, lab results, and patient data to assist in accurate diagnosis.
+                            </div>
+                        </div>
+                        <div class="list-item solution-item">
+                            <i class="fas fa-chart-line"></i>
+                            <div>
+                                <strong>Predictive Analytics:</strong> Early warning systems identify patients at risk of complications before symptoms appear.
+                            </div>
+                        </div>
+                        <div class="list-item solution-item">
+                            <i class="fas fa-user-md"></i>
+                            <div>
+                                <strong>Clinical Decision Support:</strong> Evidence-based treatment recommendations tailored to individual patient profiles.
+                            </div>
+                        </div>
+                        <div class="list-item solution-item">
+                            <i class="fas fa-mobile-alt"></i>
+                            <div>
+                                <strong>Seamless Integration:</strong> Cloud-based platform that works with existing EHR systems and medical devices.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="accuracyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Features -->
+    <section class="section" id="technology">
+        <div class="container">
+            <div class="section-header">
+                <h2>Advanced AI Technology</h2>
+                <p>Our cutting-edge technology stack combines deep learning, computer vision, and natural language processing to deliver unprecedented healthcare insights.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-eye"></i>
+                    <h4>Medical Imaging AI</h4>
+                    <p>Advanced computer vision algorithms for radiology, pathology, and dermatology image analysis with 95%+ accuracy rates.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-dna"></i>
+                    <h4>Genomics Analysis</h4>
+                    <p>AI-driven genomic data interpretation for personalized medicine and targeted therapy recommendations.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-heartbeat"></i>
+                    <h4>Vital Signs Monitoring</h4>
+                    <p>Real-time patient monitoring with predictive alerts for critical condition changes and emergency interventions.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-pills"></i>
+                    <h4>Drug Discovery</h4>
+                    <p>Machine learning models accelerate pharmaceutical research and identify novel therapeutic compounds.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-comments"></i>
+                    <h4>Clinical NLP</h4>
+                    <p>Natural language processing extracts insights from unstructured medical records and clinical notes.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h4>HIPAA Compliant</h4>
+                    <p>Enterprise-grade security with end-to-end encryption and full compliance with healthcare regulations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Business Model Section -->
+    <section class="section" id="business">
+        <div class="container">
+            <div class="section-header">
+                <h2>Business Model</h2>
+                <p>Multiple revenue streams ensure sustainable growth while delivering value across the healthcare ecosystem.</p>
+            </div>
+            <div class="revenue-streams">
+                <div class="revenue-card">
+                    <i class="fas fa-hospital"></i>
+                    <h4>Enterprise SaaS</h4>
+                    <p>Subscription-based platform licensing for hospitals, clinics, and healthcare systems with tiered pricing models.</p>
+                </div>
+                <div class="revenue-card">
+                    <i class="fas fa-cogs"></i>
+                    <h4>API Services</h4>
+                    <p>AI-as-a-Service APIs for healthcare technology companies integrating our diagnostic capabilities.</p>
+                </div>
+                <div class="revenue-card">
+                    <i class="fas fa-flask"></i>
+                    <h4>Pharma Partnerships</h4>
+                    <p>Collaborative research agreements with pharmaceutical companies for drug discovery and clinical trials.</p>
+                </div>
+            </div>
+            <div class="content-card" style="margin-top: 60px;">
+                <h3>Market Strategy & Partnerships</h3>
+                <p>Our go-to-market strategy focuses on strategic partnerships and proven ROI demonstrations:</p>
+                <div class="solution-list">
+                    <div class="list-item solution-item">
+                        <i class="fas fa-handshake"></i>
+                        <div>
+                            <strong>Healthcare Systems:</strong> Direct partnerships with major hospital networks and integrated delivery networks.
+                        </div>
+                    </div>
+                    <div class="list-item solution-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        <div>
+                            <strong>Academic Medical Centers:</strong> Research collaborations with leading medical schools and teaching hospitals.
+                        </div>
+                    </div>
+                    <div class="list-item solution-item">
+                        <i class="fas fa-globe"></i>
+                        <div>
+                            <strong>Global Expansion:</strong> Regulatory approval pathway for international markets, starting with EU and Canada.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Traction Section -->
+    <section class="section" id="traction">
+        <div class="container">
+            <div class="section-header">
+                <h2>Traction & Achievements</h2>
+                <p>SwasthyaAI has demonstrated significant market validation and clinical impact since our launch.</p>
+            </div>
+            <div class="metrics-container">
+                <div class="metric-card">
+                    <h3 id="tractionStat1">150+</h3>
+                    <p>Healthcare Partners</p>
+                </div>
+                <div class="metric-card">
+                    <h3 id="tractionStat2">2M+</h3>
+                    <p>Patients Analyzed</p>
+                </div>
+                <div class="metric-card">
+                    <h3 id="tractionStat3">94%</h3>
+                    <p>Diagnostic Accuracy</p>
+                </div>
+                <div class="metric-card">
+                    <h3 id="tractionStat4">$12M</h3>
+                    <p>ARR Achieved</p>
+                </div>
+            </div>
+            <div class="problem-solution-grid">
+                <div class="content-card">
+                    <h3>Clinical Validation</h3>
+                    <p>Our technology has been validated through rigorous clinical studies and real-world deployments:</p>
+                    <div class="solution-list">
+                        <div class="list-item solution-item">
+                            <i class="fas fa-award"></i>
+                            <div>
+                                <strong>FDA Breakthrough Device:</strong> Designated breakthrough device status for our radiology AI platform.
+                            </div>
+                        </div>
+                        <div class="list-item solution-item">
+                            <i class="fas fa-certificate"></i>
+                            <div>
+                                <strong>Clinical Studies:</strong> Published results in 12 peer-reviewed medical journals with positive outcomes.
+                            </div>
+                        </div>
+                        <div class="list-item solution-item">
+                            <i class="fas fa-hospital-alt"></i>
+                            <div>
+                                <strong>Pilot Programs:</strong> Successfully deployed in 25+ healthcare systems across North America.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="section" id="team">
+        <div class="container">
+            <div class="section-header">
+                <h2>Leadership Team</h2>
+                <p>Our world-class team combines deep medical expertise with cutting-edge AI research and proven business execution.</p>
+            </div>
+            <div class="team-grid">
+                <div class="team-member">
+                    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=faces" alt="Dr. Sarah Chen" />
+                    <h3>Dr. Sarah Chen</h3>
+                    <p class="role">CEO & Co-Founder</p>
+                    <div class="bio">MD/PhD from Harvard Medical School and MIT. Former Chief Medical Officer at Google Health with 15+ years in digital health innovation.</div>
+                </div>
+                <div class="team-member">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=faces" alt="Dr. Michael Rodriguez" />
+                    <h3>Dr. Michael Rodriguez</h3>
+                    <p class="role">CTO & Co-Founder</p>
+                    <div class="bio">PhD in Computer Science from Stanford. Former Principal Researcher at Microsoft Research with expertise in medical imaging AI and deep learning.</div>
+                </div>
+                <div class="team-member">
+                    <img src="https://images.unsplash.com/photo-1494790108755-2616b25341b0?w=400&h=400&fit=crop&crop=faces" alt="Dr. Emily Watson" />
+                    <h3>Dr. Emily Watson</h3>
+                    <p class="role">Chief Medical Officer</p>
+                    <div class="bio">Board-certified radiologist and AI researcher. Former Director of Medical AI at Mayo Clinic with 200+ publications in medical imaging.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section cta-section" id="contact">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Transform Healthcare with AI</h2>
+                <p>Join us in revolutionizing healthcare delivery through artificial intelligence. Partner with SwasthyaAI to improve patient outcomes and operational efficiency.</p>
+                <div class="contact-form">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="organization">Organization</label>
+                            <input type="text" id="organization" name="organization" placeholder="Hospital, clinic, or investment firm" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" placeholder="Tell us about your interest in SwasthyaAI..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn">Schedule a Demo</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-about">
+                    <h3>SwasthyaAI</h3>
+                    <p>Revolutionizing healthcare through artificial intelligence. We're committed to improving patient outcomes and making quality healthcare accessible to all through innovative AI solutions.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h3>Solutions</h3>
+                    <ul>
+                        <li><a href="#">Medical Imaging AI</a></li>
+                        <li><a href="#">Clinical Decision Support</a></li>
+                        <li><a href="#">Predictive Analytics</a></li>
+                        <li><a href="#">Drug Discovery</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="#">Clinical Studies</a></li>
+                        <li><a href="#">White Papers</a></li>
+                        <li><a href="#">Case Studies</a></li>
+                        <li><a href="#">API Documentation</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3>Contact</h3>
+                    <ul>
+                        <li><a href="mailto:investors@swasthyaai.com">investors@swasthyaai.com</a></li>
+                        <li><a href="tel:+1-555-HEALTH">+1 (555) HEALTH</a></li>
+                        <li>Silicon Valley, California, USA</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 SwasthyaAI. All Rights Reserved. | HIPAA Compliant | FDA Registered</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize page functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            initScrollEffects();
+            initCharts();
+            initContactForm();
+            createFloatingAnimation();
+        });
+
+        // Header scroll effect
+        function initScrollEffects() {
+            window.addEventListener('scroll', function() {
+                const header = document.querySelector('header');
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Market growth chart
+            const marketCtx = document.getElementById('marketChart').getContext('2d');
+            new Chart(marketCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['2022', '2023', '2024', '2025', '2026', '2027'],
+                    datasets: [{
+                        label: 'Healthcare AI Market Size ($ Billions)',
+                        data: [15.1, 20.9, 28.4, 33.8, 40.2, 45.0],
+                        backgroundColor: 'rgba(0, 230, 118, 0.7)',
+                        borderColor: 'rgba(0, 230, 118, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: 'rgba(255, 255, 255, 0.8)' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: 'rgba(255, 255, 255, 0.8)' }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: 'rgba(255, 255, 255, 0.8)' }
+                        }
+                    }
+                }
+            });
+
+            // Accuracy comparison chart
+            const accuracyCtx = document.getElementById('accuracyChart').getContext('2d');
+            new Chart(accuracyCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Radiology', 'Pathology', 'Cardiology', 'Oncology', 'Dermatology'],
+                    datasets: [
+                        {
+                            label: 'Traditional Methods',
+                            data: [78, 82, 75, 80, 85],
+                            borderColor: 'rgba(244, 67, 54, 0.8)',
+                            backgroundColor: 'rgba(244, 67, 54, 0.2)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'SwasthyaAI',
+                            data: [94, 96, 92, 95, 97],
+                            borderColor: 'rgba(0, 230, 118, 0.8)',
+                            backgroundColor: 'rgba(0, 230, 118, 0.2)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: 'rgba(255, 255, 255, 0.8)' }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            pointLabels: { color: 'rgba(255, 255, 255, 0.8)' },
+                            ticks: { color: 'rgba(255, 255, 255, 0.6)' }
+                        }
+                    }
+                }
+            });
+
+            // Growth metrics chart
+            const growthCtx = document.getElementById('growthChart').getContext('2d');
+            new Chart(growthCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Q1 2023', 'Q2 2023', 'Q3 2023', 'Q4 2023', 'Q1 2024', 'Q2 2024'],
+                    datasets: [
+                        {
+                            label: 'Revenue ($ Millions)',
+                            data: [0.8, 1.5, 2.8, 4.2, 6.8, 10.5],
+                            borderColor: 'rgba(0, 230, 118, 1)',
+                            backgroundColor: 'rgba(0, 230, 118, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Patients Served (Hundreds of Thousands)',
+                            data: [0.5, 1.2, 3.5, 6.8, 12.4, 20.0],
+                            borderColor: 'rgba(0, 188, 212, 1)',
+                            backgroundColor: 'rgba(0, 188, 212, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: 'rgba(255, 255, 255, 0.8)' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: 'rgba(255, 255, 255, 0.8)' }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: 'rgba(255, 255, 255, 0.8)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Contact form handling
+        function initContactForm() {
+            const form = document.getElementById('contactForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    
+                    // Show loading state
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                    submitBtn.disabled = true;
+                    
+                    // Simulate form submission
+                    setTimeout(() => {
+                        alert('Thank you for your interest! Our team will contact you within 24 hours.');
+                        form.reset();
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }, 2000);
+                });
+            }
+        }
+
+        // Floating elements animation
+        function createFloatingAnimation() {
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // Animate floating elements
+            gsap.to('.floating-element', {
+                y: 30,
+                duration: 3,
+                ease: 'power1.inOut',
+                stagger: 0.5,
+                repeat: -1,
+                yoyo: true
+            });
+
+            // Section reveal animations
+            gsap.utils.toArray('.section').forEach(section => {
+                gsap.fromTo(section.querySelectorAll('.stat-card, .content-card, .feature-card, .revenue-card, .team-member, .metric-card'),
+                    { y: 60, opacity: 0 },
+                    {
+                        y: 0,
+                        opacity: 1,
+                        duration: 0.8,
+                        stagger: 0.1,
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: section,
+                            start: 'top 80%',
+                            toggleActions: 'play none none none'
+                        }
+                    }
+                );
+            });
+
+            // Hero content animation
+            gsap.timeline()
+                .fromTo('.hero-content h1', { y: 100, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, ease: 'power3.out', delay: 0.3 })
+                .fromTo('.hero-content p', { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: 'power2.out' }, '-=0.8')
+                .fromTo('.hero-buttons', { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }, '-=0.4');
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+    <!-- Market Opportunity Section -->
+    <section class="section" id="market">
+        <div class="container">
+            <div class="section-header">
+                <h2>Market Opportunity</h2>
+                <p>The global healthcare AI market is experiencing unprecedented growth, driven by increasing demand for precision medicine and diagnostic automation.</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="marketStat1">$45B</h3>
+                    <p>Global healthcare AI market size by 2026</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="marketStat2">38%</h3>
+                    <p>Annual growth rate in AI diagnostic tools adoption</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="marketStat3">85%</h3>
+                    <p>Of healthcare leaders investing in AI solutions</p>
+                </div>
+            </div>
+            <div class="problem-solution-grid">
+                <div class="content-card">
+                    <h3><i class="fas fa-exclamation-triangle" style="color: #f44336; margin-right: 12px;"></i>The Problem</h3>
+                    <p>Healthcare systems worldwide face critical challenges that impact patient outcomes and operational efficiency:</p>
+                    <div class="problem-list">
+                        <div class="list-item problem-item">
+                            <i class="fas fa-user-md"></i>
+                            <div>
+                                <strong>Physician Shortage:</strong> Growing gap between healthcare demand and available specialists, leading to delayed diagnoses and treatment.
+                            </div>
+                        </div>
+                        <div class="list-item problem-item">
+                            <i class="fas fa-chart-line"></i>
+                            <div>
+                                <strong>Diagnostic Errors:</strong> 12 million Americans experience diagnostic errors annually, resulting in preventable complications.
+                            </div>
+                        </div>
+                        <div class="list-item problem-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <strong>Time-Intensive Analysis:</strong> Manual review of medical imaging and lab results creates bottlenecks in patient care.
+                            </div>
+                        </div>
+                        <div class="list-item problem-item">
+                            <i class="fas fa-dollar-sign"></i>
+                            <div>
+                                <strong>Rising Costs:</strong> Healthcare spending continues to outpace economic growth, demanding more efficient solutions.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="marketChart"></canvas>
+                </div>
+            </div>
+        </div>

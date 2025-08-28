@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swasthya AI - Secure Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --dark-blue: #0a1d37;
+            --medium-blue: #1e3a5f;
+            --accent-teal: #00c6a7;
+            --accent-teal-light: #50e3c2;
+            --text-primary: #e6f1ff;
+            --text-secondary: #a8b2d1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-blue) 0%, var(--medium-blue) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .background-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 15% 50%, rgba(61, 108, 185, 0.2) 0%, transparent 25%),
+                         radial-gradient(circle at 85% 30%, rgba(0, 198, 167, 0.1) 0%, transparent 30%);
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 400px;
+            padding: 30px 20px;
+        }
+
+        .logo-container {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+        }
+
+        .logo span {
+            color: var(--accent-teal);
+        }
+        
+        .logo::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-teal), transparent);
+            animation: line-animation 2.5s ease-in-out infinite;
+        }
+
+        @keyframes line-animation {
+            0% { width: 0%; left: 0; }
+            50% { width: 100%; left: 0; }
+            100% { width: 0%; left: 100%; }
+        }
+
+        .card {
+            background: rgba(30, 58, 95, 0.15);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 198, 167, 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 
+                        0 0 15px rgba(0, 198, 167, 0.1);
+            padding: 35px 30px;
+            transition: box-shadow 0.4s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25), 
+                        0 0 20px rgba(0, 198, 167, 0.15);
+        }
+
+        h1 {
+            color: var(--accent-teal);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px rgba(0, 198, 167, 0.2);
+        }
+
+        .welcome-text {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            color: var(--accent-teal);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 198, 167, 0.2);
+            background: rgba(10, 29, 55, 0.5);
+            color: #fff;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 10px rgba(0, 198, 167, 0.2);
+        }
+
+        .password-field {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: var(--accent-teal);
+        }
+
+        .options-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+
+        .remember-me input {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        .remember-me label {
+            margin-bottom: 0;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .forgot-password {
+            color: #82aaff;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            color: var(--accent-teal);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--accent-teal), var(--accent-teal-light));
+            color: var(--dark-blue);
+            box-shadow: 0 4px 12px rgba(0, 198, 167, 0.25);
+        }
+
+        .btn-google {
+            background: #fff;
+            color: #666;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #00d9b5, #59f2cf);
+        }
+
+        .btn-google:hover {
+            background: #f5f5f5;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: var(--text-secondary);
+        }
+
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(0, 198, 167, 0.15);
+        }
+
+        .divider span {
+            padding: 0 10px;
+            font-size: 0.85rem;
+        }
+
+        .footer-text {
+            text-align: center; 
+            color: var(--text-secondary); 
+            font-size: 0.85rem; 
+            margin-top: 10px;
+        }
+
+        .footer-text a {
+            color: #82aaff; 
+            text-decoration: none; 
+            transition: all 0.3s ease;
+        }
+
+        .footer-text a:hover {
+            color: var(--accent-teal);
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 25px 20px;
+            }
+            .options-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-gradient"></div>
+    
+    <div class="container">
+        <div class="logo-container">
+            <a href="#" class="logo">Swasthya<span>AI</span></a>
+        </div>
+        
+        <div class="card">
+            <h1>Secure Portal Access</h1>
+            
+            <p class="welcome-text">Access your secure dashboard to manage patient data, view AI-driven insights, and streamline your clinical workflow.</p>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Professional Email Address</label>
+                    <input type="email" id="email" placeholder="Enter your registered email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-field">
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                        <i class="toggle-password far fa-eye-slash" id="togglePassword"></i>
+                    </div>
+                </div>
+                
+                <div class="options-row">
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember">
+                        <label for="remember">Remember Me</label>
+                    </div>
+                    
+                    <a href="#" class="forgot-password">Forgot Password?</a>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            
+            <div class="divider">
+                <span>OR</span>
+            </div>
+            
+            <button class="btn btn-google">
+                <i class="fab fa-google"></i>
+                Sign in with Google
+            </button>
+            
+            <p class="footer-text">
+                Need access? 
+                <a href="#">Contact support</a>
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Toggle icon
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+        
+        // Form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Success feedback
+            const submitBtn = document.querySelector('.btn-primary');
+            submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Authenticating...';
+            submitBtn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Redirect to dashboard (in a real app)
+                submitBtn.innerHTML = 'Login';
+                submitBtn.disabled = false;
+                alert('Authentication successful! Accessing the Swasthya AI secure portal...');
+                // window.location.href = '/dashboard'; 
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
