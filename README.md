@@ -46,17 +46,17 @@ This platform integrates AI-assisted diagnostics, predictive health analytics, a
 </p>
 
 
-### ✨ Key Features
+###  Key Features
 
-* 🧠 **AI-Powered Diagnostics:** Leverages deep learning models to analyze medical images (X-rays, CT scans) with superhuman accuracy, aiding in faster and more reliable diagnoses.
-* 📈 **Predictive Health Analytics:** Uses machine learning to identify at-risk populations and forecast disease outbreaks, enabling a proactive rather than reactive approach to public health.
-* 💻 **Seamless Telemedicine:** A secure, low-bandwidth video consultation platform connecting patients in remote areas with specialized doctors in cities.
-* 🧑‍⚕️ **Clinical Decision Support:** Provides real-time, evidence-based recommendations to clinicians at the point of care, reducing errors and improving treatment outcomes.
-* 🔒 **Secure & Compliant:** Built from the ground up with data privacy and security as a top priority, ensuring patient data is always protected.
+*  **AI-Powered Diagnostics:** Leverages deep learning models to analyze medical images (X-rays, CT scans) with superhuman accuracy, aiding in faster and more reliable diagnoses.
+*  **Predictive Health Analytics:** Uses machine learning to identify at-risk populations and forecast disease outbreaks, enabling a proactive rather than reactive approach to public health.
+* **Seamless Telemedicine:** A secure, low-bandwidth video consultation platform connecting patients in remote areas with specialized doctors in cities.
+*  **Clinical Decision Support:** Provides real-time, evidence-based recommendations to clinicians at the point of care, reducing errors and improving treatment outcomes.
+*  **Secure & Compliant:** Built from the ground up with data privacy and security as a top priority, ensuring patient data is always protected.
 
 ---
 
-### 🛠️ Built With
+###  Built With
 
 This project is powered by a modern, scalable, and robust tech stack.
 
@@ -69,7 +69,7 @@ This project is powered by a modern, scalable, and robust tech stack.
 
 ---
 
-### 🚀 Getting Started
+###  Getting Started
 
 To get a local copy up and running, follow these simple steps.
 
@@ -100,7 +100,7 @@ To get a local copy up and running, follow these simple steps.
 
 ---
 
-### 🤝 Contributing
+###  Contributing
 
 Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
@@ -122,8 +122,8 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-### 📧 Contact
+###  Contact
 
-**Sujal Bist** - [LinkedIn](YOUR_LINKEDIN_URL) - [Twitter](YOUR_TWITTER_URL)
+**Sujal Bist** - [LinkedIn](https://www.linkedin.com/in/suj3) - [Twitter](https://x.com/SBist56294)
 
 Project Link: [https://github.com/sujalbistaa/HorseRun_acithackathon](https://github.com/sujalbistaa/HorseRun_acithackathon)
