@@ -1,7 +1,7 @@
 <br/>
 <p align="center">
-  <a href="https://github.com/your-username/swasthya-ai">
-    <img src="https://i.ibb.co/SRvj49F/dna-helix.png" alt="Swasthya AI Logo" width="100" height="100">
+  <a href="https://github.com/sujalbistaa/HorseRun_acithackathon">
+    <img src="https://drive.google.com/file/d/1SOpzn9EiDUtHGfLSddBzANFuFKrSveyf/view" alt="Swasthya AI Logo" width="100" height="100">
   </a>
 
   <h1 align="center">Swasthya AI 🩺</h1>
@@ -14,19 +14,19 @@
     <br />
     <a href="YOUR_DEMO_LINK_HERE">View Demo</a>
     ·
-    <a href="https://github.com/your-username/swasthya-ai/issues">Report Bug</a>
+    <a href="https://github.com/sujalbistaa/HorseRun_acithackathon/issues">Report Bug</a>
     ·
-    <a href="https://github.com/your-username/swasthya-ai/issues">Request Feature</a>
+    <a href="https://github.com/sujalbistaa/HorseRun_acithackathon/issues">Request Feature</a>
   </p>
 </p>
 
 <div align="center">
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)](https://github.com/your-username/swasthya-ai)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)](https://github.com/sujalbistaa/HorseRun_acithackathon)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Contributors](https://img.shields.io/github/contributors/your-username/swasthya-ai?style=for-the-badge&color=orange)](https://github.com/your-username/swasthya-ai/graphs/contributors)
-[![Forks](https://img.shields.io/github/forks/your-username/swasthya-ai?style=for-the-badge&color=purple)](https://github.com/your-username/swasthya-ai/network/members)
-[![Stargazers](https://img.shields.io/github/stars/your-username/swasthya-ai?style=for-the-badge&color=yellow)](https://github.com/your-username/swasthya-ai/stargazers)
+[![Contributors](https://img.shields.io/github/contributors/sujalbistaa/HorseRun_acithackathon?style=for-the-badge&color=orange)](https://github.com/sujalbistaa/HorseRun_acithackathon/graphs/contributors)
+[![Forks](https://img.shields.io/github/forks/sujalbistaa/HorseRun_acithackathon?style=for-the-badge&color=purple)](https://github.com/sujalbistaa/HorseRun_acithackathon/network/members)
+[![Stargazers](https://img.shields.io/github/stars/sujalbistaa/HorseRun_acithackathon?style=for-the-badge&color=yellow)](https://github.com/sujalbistaa/HorseRun_acithackathon/stargazers)
 
 </div>
 
@@ -80,11 +80,11 @@ To get a local copy up and running, follow these simple steps.
 
 1.  **Clone the repo:**
     ```sh
-    git clone [https://github.com/your-username/swasthya-ai.git](https://github.com/your-username/swasthya-ai.git)
+    git clone [https://github.com/sujalbistaa/HorseRun_acithackathon.git](https://github.com/sujalbistaa/HorseRun_acithackathon.git)
     ```
 2.  **Navigate to the project directory:**
     ```sh
-    cd swasthya-ai
+    cd HorseRun_acithackathon
     ```
 3.  **Install dependencies:**
     ```sh
@@ -124,4 +124,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 **Sujal Bist** - [LinkedIn](YOUR_LINKEDIN_URL) - [Twitter](YOUR_TWITTER_URL)
 
-Project Link: [https://github.com/your-username/swasthya-ai](https://github.com/your-username/swasthya-ai)
+Project Link: [https://github.com/sujalbistaa/HorseRun_acithackathon](https://github.com/sujalbistaa/HorseRun_acithackathon)
