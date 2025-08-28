@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Flow Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .test-section { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .step { margin: 15px 0; padding: 10px; border-left: 4px solid #007bff; background: #f8f9fa; }
+        .step.completed { border-left-color: #28a745; background: #d4edda; }
+        .step.error { border-left-color: #dc3545; background: #f8d7da; }
+        .btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .btn:hover { background: #0056b3; }
+        .btn-google { background: #dc3545; }
+        .btn-google:hover { background: #c82333; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>🔄 OAuth Flow Test - Google Login to Dashboard</h1>
+
+    <div class="test-section">
+        <h2>Expected OAuth Flow:</h2>
+        <div class="step" id="step1">
+            <strong>Step 1:</strong> Click "Test Google Login" button
+        </div>
+        <div class="step" id="step2">
+            <strong>Step 2:</strong> Google OAuth consent screen appears
+        </div>
+        <div class="step" id="step3">
+            <strong>Step 3:</strong> Redirect to auth-callback.html (loading screen)
+        </div>
+        <div class="step" id="step4">
+            <strong>Step 4:</strong> Automatic redirect to dashboard.html
+        </div>
+        <div class="step" id="step5">
+            <strong>Step 5:</strong> Welcome message on dashboard
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Controls:</h2>
+        <button class="btn btn-google" onclick="testGoogleLogin()">
+            <i class="fab fa-google"></i> Test Google Login
+        </button>
+        <button class="btn" onclick="checkCurrentUser()">Check Current User</button>
+        <button class="btn" onclick="goToDashboard()">Go to Dashboard</button>
+        <button class="btn" onclick="clearStatus()">Clear Status</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Status:</h2>
+        <div id="status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Debug Info:</h2>
+        <div id="debug"></div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const debugDiv = document.getElementById('debug');
+
+        function addStatus(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = `${new Date().toLocaleTimeString()}: ${message}`;
+            statusDiv.appendChild(div);
+            statusDiv.scrollTop = statusDiv.scrollHeight;
+        }
+
+        function updateStep(stepId, status, message = '') {
+            const step = document.getElementById(stepId);
+            step.className = `step ${status}`;
+            if (message) {
+                step.innerHTML += `<br><small>${message}</small>`;
+            }
+        }
+
+        async function testGoogleLogin() {
+            addStatus('Starting Google OAuth test...', 'info');
+            updateStep('step1', 'completed', 'Button clicked');
+
+            try {
+                const result = await window.AuthUtils.auth.signInWithGoogle();
+
+                if (result.success) {
+                    addStatus('✅ Google OAuth initiated successfully', 'success');
+                    updateStep('step2', 'completed', 'OAuth initiated');
+                    addStatus('🔄 Redirecting to Google...', 'info');
+                } else {
+                    addStatus(`❌ Google OAuth failed: ${result.error}`, 'error');
+                    updateStep('step2', 'error', result.error);
+                }
+            } catch (error) {
+                addStatus(`❌ Google OAuth error: ${error.message}`, 'error');
+                updateStep('step2', 'error', error.message);
+            }
+        }
+
+        async function checkCurrentUser() {
+            addStatus('Checking current user...', 'info');
+
+            try {
+                const { data: { user }, error } = await window.AuthUtils.auth.getCurrentUser();
+
+                if (user) {
+                    addStatus(`✅ User logged in: ${user.email} (Provider: ${user.app_metadata?.provider || 'email'})`, 'success');
+                    debugDiv.innerHTML = `
+                        <strong>User Info:</strong><br>
+                        Email: ${user.email}<br>
+                        Provider: ${user.app_metadata?.provider || 'email'}<br>
+                        Created: ${new Date(user.created_at).toLocaleString()}<br>
+                        Last Sign In: ${new Date(user.last_sign_in_at).toLocaleString()}
+                    `;
+                } else {
+                    addStatus('❌ No user logged in', 'error');
+                    debugDiv.innerHTML = 'No user session found';
+                }
+            } catch (error) {
+                addStatus(`❌ Error checking user: ${error.message}`, 'error');
+                debugDiv.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function goToDashboard() {
+            addStatus('Redirecting to dashboard...', 'info');
+            window.location.href = 'dashboard.html';
+        }
+
+        function clearStatus() {
+            statusDiv.innerHTML = '';
+            debugDiv.innerHTML = '';
+
+            // Reset step styles
+            for (let i = 1; i <= 5; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.className = 'step';
+            }
+        }
+
+        // Check if user is already logged in on page load
+        window.addEventListener('load', async () => {
+            addStatus('Page loaded, checking authentication...', 'info');
+            await checkCurrentUser();
+        });
+
+        // Listen for auth state changes
+        window.AuthUtils.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                addStatus(`🔐 User signed in: ${session.user.email}`, 'success');
+                updateStep('step3', 'completed', 'Authentication completed');
+                updateStep('step4', 'completed', 'Redirecting to dashboard');
+            } else if (event === 'SIGNED_OUT') {
+                addStatus('🚪 User signed out', 'info');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Swasthya AI - Secure Login</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="supabase-config.js"></script>
     <style>
         :root {
             --dark-blue: #0a1d37;
@@ -296,7 +299,7 @@
     
     <div class="container">
         <div class="logo-container">
-            <a href="#" class="logo">Swasthya<span>AI</span></a>
+            <a href="index.html" class="logo">Swasthya<span>AI</span></a>
         </div>
         
         <div class="card">
@@ -340,8 +343,8 @@
             </button>
             
             <p class="footer-text">
-                Need access? 
-                <a href="#">Contact support</a>
+                Don't have an account? 
+                <a href="signupform.html">Sign up here</a>
             </p>
         </div>
     </div>
@@ -352,29 +355,142 @@
             const passwordInput = document.getElementById('password');
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            
+
             // Toggle icon
             this.classList.toggle('fa-eye');
             this.classList.toggle('fa-eye-slash');
         });
-        
-        // Form submission
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+
+        // Forgot password functionality
+        document.querySelector('.forgot-password').addEventListener('click', async function(e) {
             e.preventDefault();
-            
-            // Success feedback
+
+            const email = document.getElementById('email').value;
+
+            if (!email) {
+                window.AuthUtils.utils.showMessage('Please enter your email address first.', 'warning');
+                return;
+            }
+
+            try {
+                const result = await window.AuthUtils.auth.resetPassword(email);
+
+                if (result.success) {
+                    window.AuthUtils.utils.showMessage(
+                        'Password reset email sent! Please check your inbox.',
+                        'success'
+                    );
+                } else {
+                    window.AuthUtils.utils.showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Password reset error:', error);
+                window.AuthUtils.utils.showMessage('Failed to send reset email. Please try again.', 'error');
+            }
+        });
+
+        // Form submission with Supabase authentication
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
             const submitBtn = document.querySelector('.btn-primary');
-            submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Authenticating...';
-            submitBtn.disabled = true;
-            
-            // Simulate API call
-            setTimeout(() => {
-                // Redirect to dashboard (in a real app)
-                submitBtn.innerHTML = 'Login';
-                submitBtn.disabled = false;
-                alert('Authentication successful! Accessing the Swasthya AI secure portal...');
-                // window.location.href = '/dashboard'; 
-            }, 1500);
+            const originalText = submitBtn.innerHTML;
+
+            // Store original text for restoration
+            submitBtn.dataset.originalText = originalText;
+
+            // Get form data
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('remember').checked;
+
+            // Set loading state
+            window.AuthUtils.utils.setLoading(submitBtn, true);
+
+            try {
+                // Sign in with Supabase
+                const result = await window.AuthUtils.auth.signIn(email, password);
+
+                if (result.success) {
+                    window.AuthUtils.utils.showMessage(
+                        'Login successful! Welcome back to Swasthya AI.',
+                        'success'
+                    );
+
+                    // Store user preference for "Remember Me"
+                    if (rememberMe) {
+                        localStorage.setItem('swasthya_remember', 'true');
+                    } else {
+                        localStorage.removeItem('swasthya_remember');
+                    }
+
+                    // Redirect to dashboard or main page after successful login
+                    setTimeout(() => {
+                        // You can redirect to a dashboard page or back to index
+                        window.location.href = 'dashboard.html';
+                        // Or create a dashboard.html page
+                        // window.location.href = 'dashboard.html';
+                    }, 1500);
+                } else {
+                    window.AuthUtils.utils.showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                window.AuthUtils.utils.showMessage('An unexpected error occurred. Please try again.', 'error');
+            } finally {
+                // Reset loading state
+                window.AuthUtils.utils.setLoading(submitBtn, false);
+            }
+        });
+
+        // Google Sign In
+        document.querySelector('.btn-google').addEventListener('click', async function() {
+            try {
+                const result = await window.AuthUtils.auth.signInWithGoogle();
+
+                if (result.success) {
+                    // OAuth will handle the redirect automatically
+                    window.AuthUtils.utils.showMessage('Redirecting to Google...', 'info');
+                } else {
+                    window.AuthUtils.utils.showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Google sign-in error:', error);
+                window.AuthUtils.utils.showMessage('Failed to initiate Google sign-in. Please try again.', 'error');
+            }
+        });
+
+        // Check if user is already logged in
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const { data: { user } } = await window.AuthUtils.auth.getCurrentUser();
+
+                if (user) {
+                    // User is already logged in, redirect to dashboard
+                    window.AuthUtils.utils.showMessage('You are already logged in!', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
+                } else {
+                    // Check for error parameters in URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const error = urlParams.get('error');
+
+                    if (error) {
+                        const errorMessages = {
+                            'auth_callback_failed': 'Authentication failed. Please try again.',
+                            'callback_error': 'There was an issue with the authentication process.',
+                            'auth_check_failed': 'Unable to verify your authentication status.',
+                            'dashboard_init_failed': 'Failed to load your dashboard.'
+                        };
+
+                        const message = errorMessages[error] || 'An authentication error occurred.';
+                        window.AuthUtils.utils.showMessage(message, 'error');
+                    }
+                }
+            } catch (error) {
+                console.log('No existing session found');
+            }
         });
     </script>
 </body>

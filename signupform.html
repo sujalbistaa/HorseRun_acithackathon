@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Swasthya AI - Account Registration</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="supabase-config.js"></script>
     <style>
         :root {
             --dark-blue: #0a1d37;
@@ -259,7 +262,7 @@
     
     <div class="container">
         <div class="logo-container">
-            <a href="#" class="logo">Swasthya<span>AI</span></a>
+            <a href="index.html" class="logo">Swasthya<span>AI</span></a>
         </div>
         
         <div class="card">
@@ -319,7 +322,7 @@
             
             <p class="footer-text">
                 Already have an account? 
-                <a href="#">Log in here</a>
+                <a href="loginform.html">Log in here</a>
             </p>
         </div>
     </div>
@@ -330,15 +333,15 @@
             const password = this.value;
             const strengthBar = document.getElementById('passwordStrength');
             let strength = 0;
-            
+
             if (password.length > 7) strength += 20;
             if (password.length > 10) strength += 20;
             if (/[A-Z]/.test(password)) strength += 20;
             if (/[0-9]/.test(password)) strength += 20;
             if (/[^A-Za-z0-9]/.test(password)) strength += 20;
-            
+
             strengthBar.style.width = strength + '%';
-            
+
             if (strength <= 40) {
                 strengthBar.style.background = '#ff6b6b'; // Weak - Red
             } else if (strength <= 80) {
@@ -347,32 +350,96 @@
                 strengthBar.style.background = 'var(--accent-teal)'; // Strong - Teal
             }
         });
-        
-        // Form validation
-        document.getElementById('signupForm').addEventListener('submit', function(e) {
+
+        // Form validation and Supabase signup
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
+            const submitBtn = document.querySelector('.btn-primary');
+            const originalText = submitBtn.innerHTML;
+
+            // Store original text for restoration
+            submitBtn.dataset.originalText = originalText;
+
+            // Get form data
+            const fullname = document.getElementById('fullname').value;
+            const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            
+            const userType = document.getElementById('userType').value;
+            const termsAccepted = document.getElementById('terms').checked;
+
+            // Validation
             if (password !== confirmPassword) {
-                alert('Passwords do not match. Please try again.');
+                window.AuthUtils.utils.showMessage('Passwords do not match. Please try again.', 'error');
                 return;
             }
-            
-            // Success feedback
-            const submitBtn = document.querySelector('.btn-primary');
-            submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Submitting Registration...';
-            submitBtn.disabled = true;
-            
-            // Simulate API call
-            setTimeout(() => {
-                alert('Registration successful! Your account is pending verification. You will be notified via email upon activation.');
-                submitBtn.innerHTML = 'Create Account';
-                submitBtn.disabled = false;
-                this.reset();
-                document.getElementById('passwordStrength').style.width = '0%';
-            }, 1500);
+
+            if (!termsAccepted) {
+                window.AuthUtils.utils.showMessage('Please accept the Terms of Service and Privacy Policy.', 'error');
+                return;
+            }
+
+            if (password.length < 8) {
+                window.AuthUtils.utils.showMessage('Password must be at least 8 characters long.', 'error');
+                return;
+            }
+
+            // Set loading state
+            window.AuthUtils.utils.setLoading(submitBtn, true);
+
+            try {
+                // Prepare user metadata
+                const userData = {
+                    full_name: fullname,
+                    user_type: userType,
+                    role: userType
+                };
+
+                // Sign up with Supabase
+                const result = await window.AuthUtils.auth.signUp(email, password, userData);
+
+                if (result.success) {
+                    window.AuthUtils.utils.showMessage(
+                        'Registration successful! Please check your email to verify your account.',
+                        'success'
+                    );
+
+                    // Reset form
+                    this.reset();
+                    document.getElementById('passwordStrength').style.width = '0%';
+
+                    // Optional: Redirect to login after a delay
+                    setTimeout(() => {
+                        window.location.href = 'loginform.html';
+                    }, 3000);
+                } else {
+                    window.AuthUtils.utils.showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                window.AuthUtils.utils.showMessage('An unexpected error occurred. Please try again.', 'error');
+            } finally {
+                // Reset loading state
+                window.AuthUtils.utils.setLoading(submitBtn, false);
+            }
+        });
+
+        // Google Sign Up
+        document.querySelector('.btn-google').addEventListener('click', async function() {
+            try {
+                const result = await window.AuthUtils.auth.signUpWithGoogle();
+
+                if (result.success) {
+                    // OAuth will handle the redirect automatically
+                    window.AuthUtils.utils.showMessage('Redirecting to Google...', 'info');
+                } else {
+                    window.AuthUtils.utils.showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Google sign-up error:', error);
+                window.AuthUtils.utils.showMessage('Failed to initiate Google sign-up. Please try again.', 'error');
+            }
         });
     </script>
 </body>
