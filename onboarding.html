@@ -721,12 +721,11 @@
 
                 // Redirect to appropriate dashboard based on role
                 setTimeout(() => {
-                    if (selectedRole === 'patient') {
-                        window.location.href = 'patient-dashboard.html';
-                    } else if (selectedRole === 'doctor') {
+                    if (selectedRole === 'doctor') {
                         window.location.href = 'doctor-dashboard.html';
                     } else {
-                        window.location.href = 'dashboard.html'; // Fallback
+                        // Default to patient dashboard for patients and fallback
+                        window.location.href = 'dashboard.html';
                     }
                 }, 2000);
 

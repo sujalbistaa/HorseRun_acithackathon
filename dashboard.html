@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swasthya AI - Dashboard</title>
+    <title>Swasthya AI - Patient Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
@@ -17,6 +17,9 @@
             --text-primary: #e6f1ff;
             --text-secondary: #a8b2d1;
             --card-bg: rgba(30, 58, 95, 0.15);
+            --success-green: #10b981;
+            --warning-yellow: #f59e0b;
+            --danger-red: #ef4444;
         }
 
         * {
@@ -30,22 +33,29 @@
             background: linear-gradient(135deg, var(--dark-blue) 0%, var(--medium-blue) 100%);
             min-height: 100vh;
             color: var(--text-primary);
+            overflow-x: hidden;
         }
 
         .header {
-            background: rgba(10, 25, 41, 0.9);
+            background: rgba(10, 25, 41, 0.95);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 230, 118, 0.1);
+            border-bottom: 1px solid rgba(0, 198, 167, 0.1);
             padding: 20px 0;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1000;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .header-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 20px;
             display: flex;
@@ -58,10 +68,45 @@
             font-weight: 700;
             color: var(--text-primary);
             text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            color: var(--accent-teal);
+            transform: scale(1.05);
         }
 
         .logo span {
             color: var(--accent-teal);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link:hover {
+            color: var(--accent-teal);
+            background: rgba(0, 198, 167, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            color: var(--accent-teal);
+            background: rgba(0, 198, 167, 0.15);
         }
 
         .user-info {
@@ -84,11 +129,12 @@
         .logout-btn:hover {
             background: var(--accent-teal-light);
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 198, 167, 0.3);
         }
 
         .main-content {
             margin-top: 100px;
-            max-width: 1200px;
+            max-width: 1400px;
             margin-left: auto;
             margin-right: auto;
             padding: 0 20px;
@@ -96,97 +142,167 @@
 
         .welcome-section {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .welcome-section h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 3rem;
+            margin-bottom: 15px;
             color: var(--accent-teal);
+            text-shadow: 0 0 20px rgba(0, 198, 167, 0.3);
         }
 
         .welcome-section p {
             color: var(--text-secondary);
-            font-size: 1.1rem;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 30px;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
         }
 
         .dashboard-card {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 30px;
+            border-radius: 20px;
+            padding: 40px;
             border: 1px solid rgba(0, 198, 167, 0.1);
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
+            animation: fadeInUp 0.8s ease-out;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-card:nth-child(1) { animation-delay: 0.1s; }
+        .dashboard-card:nth-child(2) { animation-delay: 0.2s; }
+        .dashboard-card:nth-child(3) { animation-delay: 0.3s; }
+        .dashboard-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 198, 167, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .dashboard-card:hover::before {
+            left: 100%;
         }
 
         .dashboard-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-10px) scale(1.02);
             border-color: var(--accent-teal);
-            box-shadow: 0 10px 30px rgba(0, 198, 167, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 198, 167, 0.3);
         }
 
         .dashboard-card h3 {
             color: var(--accent-teal);
-            margin-bottom: 15px;
-            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .dashboard-card p {
             color: var(--text-secondary);
-            line-height: 1.6;
+            line-height: 1.7;
+            font-size: 1rem;
+            margin-bottom: 20px;
         }
 
         .dashboard-card i {
-            font-size: 2rem;
+            font-size: 2.5rem;
             color: var(--accent-teal);
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover i {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .card-arrow {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: var(--accent-teal);
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover .card-arrow {
+            opacity: 1;
+            transform: translateX(0);
         }
 
         .stats-section {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 30px;
+            border-radius: 20px;
+            padding: 40px;
             border: 1px solid rgba(0, 198, 167, 0.1);
-            margin-bottom: 40px;
+            margin-bottom: 50px;
+            animation: fadeInUp 0.8s ease-out 0.5s both;
         }
 
         .stats-section h2 {
             color: var(--accent-teal);
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             text-align: center;
+            font-size: 2rem;
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            gap: 25px;
         }
 
         .stat-item {
             text-align: center;
-            padding: 20px;
+            padding: 25px;
             background: rgba(0, 198, 167, 0.05);
-            border-radius: 12px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 198, 167, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            background: rgba(0, 198, 167, 0.1);
+            border-color: var(--accent-teal);
         }
 
         .stat-number {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 700;
             color: var(--accent-teal);
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
 
         .stat-label {
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 1rem;
+            font-weight: 500;
         }
 
         .loading {
@@ -209,8 +325,14 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Responsive Design */
         @media (max-width: 768px) {
             .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-menu {
                 flex-direction: column;
                 gap: 15px;
             }
@@ -227,6 +349,29 @@
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
+
+            .welcome-section h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-teal);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-teal-light);
         }
     </style>
 </head>
@@ -242,6 +387,30 @@
         <header class="header">
             <div class="header-content">
                 <a href="index.html" class="logo">Swasthya<span>AI</span></a>
+                
+                <nav class="nav-menu">
+                    <a href="dashboard.html" class="nav-link active">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </a>
+                    <a href="ai-chat.html" class="nav-link">
+                        <i class="fas fa-robot"></i>
+                        AI Chat
+                    </a>
+                    <a href="doctors.html" class="nav-link">
+                        <i class="fas fa-user-md"></i>
+                        Doctors
+                    </a>
+                    <a href="appointments.html" class="nav-link">
+                        <i class="fas fa-calendar-alt"></i>
+                        Appointments
+                    </a>
+                    <a href="prescriptions.html" class="nav-link">
+                        <i class="fas fa-pills"></i>
+                        Prescriptions
+                    </a>
+                </nav>
+
                 <div class="user-info">
                     <span id="userEmail">Loading...</span>
                     <button id="logoutBtn" class="logout-btn">Logout</button>
@@ -251,69 +420,63 @@
 
         <main class="main-content">
             <section class="welcome-section">
-                <h1>Welcome to Swasthya AI</h1>
-                <p>Your secure healthcare AI dashboard is ready</p>
+                <h1>Welcome to Your Health Hub</h1>
+                <p>Your comprehensive healthcare dashboard with AI assistance, doctor bookings, and health management tools</p>
             </section>
 
+            <!-- Main Dashboard Cards -->
+            <div class="dashboard-grid">
+                <a href="ai-chat.html" class="dashboard-card">
+                    <i class="fas fa-robot"></i>
+                    <h3>AI Health Assistant</h3>
+                    <p>Get instant health advice, symptom analysis, and medical information from our advanced AI chatbot. Features voice input for hands-free interaction.</p>
+                    <i class="fas fa-arrow-right card-arrow"></i>
+                </a>
+
+                <a href="doctors.html" class="dashboard-card">
+                    <i class="fas fa-user-md"></i>
+                    <h3>Find & Book Doctors</h3>
+                    <p>Browse through our network of qualified healthcare professionals, read reviews, and book appointments that fit your schedule.</p>
+                    <i class="fas fa-arrow-right card-arrow"></i>
+                </a>
+
+                <a href="appointments.html" class="dashboard-card">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>Manage Appointments</h3>
+                    <p>View your upcoming appointments, check appointment history, and manage your healthcare schedule efficiently.</p>
+                    <i class="fas fa-arrow-right card-arrow"></i>
+                </a>
+
+                <a href="prescriptions.html" class="dashboard-card">
+                    <i class="fas fa-pills"></i>
+                    <h3>Track Prescriptions</h3>
+                    <p>Monitor your current medications, track refills, view prescription history, and get reminders for important health tasks.</p>
+                    <i class="fas fa-arrow-right card-arrow"></i>
+                </a>
+            </div>
+
+            <!-- Quick Stats -->
             <section class="stats-section">
-                <h2>Platform Statistics</h2>
+                <h2>Your Health Overview</h2>
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <div class="stat-number">150+</div>
-                        <div class="stat-label">Healthcare Partners</div>
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Upcoming Appointments</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number">2M+</div>
-                        <div class="stat-label">Patients Analyzed</div>
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">Active Prescriptions</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">Completed Visits</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-number">94%</div>
-                        <div class="stat-label">Diagnostic Accuracy</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">$12M</div>
-                        <div class="stat-label">ARR Achieved</div>
+                        <div class="stat-label">Health Score</div>
                     </div>
                 </div>
             </section>
-
-            <div class="dashboard-grid">
-                <div class="dashboard-card">
-                    <i class="fas fa-brain"></i>
-                    <h3>AI Diagnostics</h3>
-                    <p>Access cutting-edge AI-powered diagnostic tools and medical imaging analysis.</p>
-                </div>
-
-                <div class="dashboard-card">
-                    <i class="fas fa-chart-line"></i>
-                    <h3>Predictive Analytics</h3>
-                    <p>Monitor patient trends and receive early warning alerts for potential health issues.</p>
-                </div>
-
-                <div class="dashboard-card">
-                    <i class="fas fa-users"></i>
-                    <h3>Patient Management</h3>
-                    <p>Manage patient records, treatment plans, and clinical workflows efficiently.</p>
-                </div>
-
-                <div class="dashboard-card">
-                    <i class="fas fa-file-medical"></i>
-                    <h3>Clinical Reports</h3>
-                    <p>Generate comprehensive medical reports with AI-assisted insights.</p>
-                </div>
-
-                <div class="dashboard-card">
-                    <i class="fas fa-graduation-cap"></i>
-                    <h3>Training & Resources</h3>
-                    <p>Access educational materials and stay updated with the latest medical research.</p>
-                </div>
-
-                <div class="dashboard-card">
-                    <i class="fas fa-cog"></i>
-                    <h3>Settings</h3>
-                    <p>Customize your dashboard preferences and account settings.</p>
-                </div>
-            </div>
         </main>
     </div>
 
@@ -325,7 +488,6 @@
 
                 if (error) {
                     console.error('Auth check error:', error);
-                    // Show error message and redirect
                     window.AuthUtils.utils.showMessage('Authentication error. Redirecting to login...', 'error');
                     setTimeout(() => {
                         window.location.href = 'loginform.html?error=auth_check_failed';
@@ -334,7 +496,6 @@
                 }
 
                 if (!user) {
-                    // Not authenticated, redirect to login
                     window.AuthUtils.utils.showMessage('Please log in to access your dashboard.', 'warning');
                     setTimeout(() => {
                         window.location.href = 'loginform.html';
@@ -345,15 +506,12 @@
                 // Check user role and redirect to appropriate dashboard
                 const userRole = user.user_metadata?.role || user.user_metadata?.user_type;
                 
-                if (userRole === 'patient') {
-                    window.location.href = 'patient-dashboard.html';
-                    return;
-                } else if (userRole === 'doctor') {
+                if (userRole === 'doctor') {
                     window.location.href = 'doctor-dashboard.html';
                     return;
                 }
 
-                // Fallback: User is authenticated but no role defined, continue to general dashboard
+                // Load patient dashboard
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
 
@@ -364,16 +522,12 @@
                 document.getElementById('userEmail').textContent = user.email;
 
                 // Show welcome message
-                const authProvider = user.app_metadata?.provider || 'email';
-                const providerMessage = authProvider === 'google' ?
-                    'Welcome back from Google!' : 'Welcome back!';
-
                 window.AuthUtils.utils.showMessage(
-                    `${providerMessage} ${displayName}`,
+                    `Welcome back, ${displayName}!`,
                     'success'
                 );
 
-                console.log('Dashboard loaded for user:', user.email, 'Provider:', authProvider);
+                console.log('Patient dashboard loaded for user:', user.email);
 
             } catch (error) {
                 console.error('Dashboard initialization error:', error);

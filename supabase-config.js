@@ -45,7 +45,7 @@ const auth = {
     async signInWithGoogle(redirectTo = null) {
         try {
             // Use the callback handler for better OAuth flow management
-            const baseUrl = 'http://127.0.0.1:3000/HorseRun_acithackathon';
+            const baseUrl = 'http://127.0.0.1:3000';
             const callbackUrl = `${baseUrl}/auth-callback.html`;
 
             const { data, error } = await supabase.auth.signInWithOAuth({

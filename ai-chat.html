@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swasthya AI - AI Health Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="supabase-config.js"></script>
+    <style>
+        :root {
+            --dark-blue: #0a1d37;
+            --medium-blue: #1e3a5f;
+            --accent-teal: #00c6a7;
+            --accent-teal-light: #50e3c2;
+            --text-primary: #e6f1ff;
+            --text-secondary: #a8b2d1;
+            --card-bg: rgba(30, 58, 95, 0.15);
+            --danger-red: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-blue) 0%, var(--medium-blue) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .header {
+            background: rgba(10, 25, 41, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 198, 167, 0.1);
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--accent-teal);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link.active {
+            color: var(--accent-teal);
+            background: rgba(0, 198, 167, 0.15);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: var(--accent-teal);
+            color: var(--dark-blue);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-top: 100px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 20px;
+        }
+
+        .chat-header {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(0, 198, 167, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .chat-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-title i {
+            font-size: 2.5rem;
+            color: var(--accent-teal);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .chat-title h1 {
+            font-size: 2rem;
+            color: var(--accent-teal);
+            margin: 0;
+        }
+
+        .chat-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 198, 167, 0.1);
+            overflow: hidden;
+            height: calc(100vh - 250px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.2rem;
+        }
+
+        .message-avatar.user {
+            background: var(--accent-teal);
+            color: var(--dark-blue);
+        }
+
+        .message-avatar.bot {
+            background: rgba(0, 198, 167, 0.2);
+            color: var(--accent-teal);
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 18px;
+        }
+
+        .message.user .message-content {
+            background: var(--accent-teal);
+            color: var(--dark-blue);
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot .message-content {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border-bottom-left-radius: 5px;
+        }
+
+        .chat-input-area {
+            border-top: 1px solid rgba(0, 198, 167, 0.1);
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid rgba(0, 198, 167, 0.3);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent-teal);
+        }
+
+        .voice-btn {
+            background: var(--accent-teal);
+            color: var(--dark-blue);
+            border: none;
+            padding: 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .voice-btn.recording {
+            background: var(--danger-red);
+            animation: recordingPulse 1.5s infinite;
+        }
+
+        @keyframes recordingPulse {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 0 25px rgba(239, 68, 68, 0);
+                transform: scale(1.1);
+            }
+        }
+
+        .voice-btn.recording::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: recordingDot 1s infinite;
+        }
+
+        @keyframes recordingDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.8); }
+        }
+
+        .send-btn {
+            background: var(--accent-teal);
+            color: var(--dark-blue);
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .voice-status {
+            text-align: center;
+            margin-top: 15px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .voice-status.recording {
+            color: var(--danger-red);
+        }
+
+        .disclaimer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 198, 167, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 198, 167, 0.2);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .disclaimer i {
+            color: var(--accent-teal);
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">Swasthya<span>AI</span></a>
+            
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="ai-chat.html" class="nav-link active">
+                    <i class="fas fa-robot"></i>
+                    AI Chat
+                </a>
+                <a href="doctors.html" class="nav-link">
+                    <i class="fas fa-user-md"></i>
+                    Doctors
+                </a>
+                <a href="appointments.html" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    Appointments
+                </a>
+                <a href="prescriptions.html" class="nav-link">
+                    <i class="fas fa-pills"></i>
+                    Prescriptions
+                </a>
+            </nav>
+
+            <div class="user-info">
+                <span id="userEmail">Loading...</span>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="chat-header">
+            <div class="chat-title">
+                <i class="fas fa-robot"></i>
+                <div>
+                    <h1>AI Health Assistant</h1>
+                    <p>Always here to help with your health questions</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <div class="message-avatar bot">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        Hello! I'm your AI health assistant. How can I help you today? You can ask me about symptoms, medications, or general health questions. I also support voice input for your convenience - just click the microphone button!
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="chat-input-container">
+                    <input 
+                        type="text" 
+                        id="chatInput" 
+                        class="chat-input" 
+                        placeholder="Ask me about your health concerns or use voice input..."
+                    >
+                    <button class="voice-btn" id="voiceBtn" title="Voice Input">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="send-btn" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i>
+                        Send
+                    </button>
+                </div>
+                
+                <div class="voice-status" id="voiceStatus">
+                    Click the microphone to start voice input
+                </div>
+
+                <div class="disclaimer">
+                    <i class="fas fa-info-circle"></i>
+                    This AI assistant provides general health information. Always consult healthcare professionals for medical advice.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const { data: { user }, error } = await window.AuthUtils.auth.getCurrentUser();
+
+                if (error || !user) {
+                    window.location.href = 'loginform.html';
+                    return;
+                }
+
+                document.getElementById('userEmail').textContent = user.email;
+                initializeChat();
+
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.href = 'loginform.html';
+            }
+        });
+
+        // Backend API configuration
+        const API_BASE_URL = 'http://localhost:8000';
+
+        function initializeChat() {
+            const chatInput = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const chatMessages = document.getElementById('chatMessages');
+            const voiceBtn = document.getElementById('voiceBtn');
+            const voiceStatus = document.getElementById('voiceStatus');
+
+            let isRecording = false;
+
+            function addMessage(content, isUser = false, isPrescription = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+                
+                const avatar = document.createElement('div');
+                avatar.className = `message-avatar ${isUser ? 'user' : 'bot'}`;
+                avatar.innerHTML = `<i class="fas fa-${isUser ? 'user' : 'robot'}"></i>`;
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+                
+                if (isPrescription && typeof content === 'object') {
+                    // Format prescription response
+                    messageContent.innerHTML = formatPrescription(content);
+                } else {
+                    messageContent.textContent = content;
+                }
+                
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(messageContent);
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function formatPrescription(prescription) {
+                let html = `<div style="font-family: monospace; line-height: 1.6;">`;
+                
+                if (prescription.clinical_summary) {
+                    html += `<div style="margin-bottom: 15px;">
+                        <strong>🩺 Clinical Summary:</strong><br>
+                        ${prescription.clinical_summary}
+                    </div>`;
+                }
+                
+                if (prescription.possible_diagnoses && prescription.possible_diagnoses.length > 0) {
+                    html += `<div style="margin-bottom: 15px;">
+                        <strong>🔍 Possible Diagnoses:</strong><br>
+                        ${prescription.possible_diagnoses.map(d => `• ${d}`).join('<br>')}
+                    </div>`;
+                }
+                
+                if (prescription.medications && prescription.medications.length > 0) {
+                    html += `<div style="margin-bottom: 15px;">
+                        <strong>💊 Medications:</strong><br>`;
+                    prescription.medications.forEach(med => {
+                        html += `<div style="background: rgba(0,198,167,0.1); padding: 10px; margin: 5px 0; border-radius: 8px;">
+                            <strong>${med.medicine_name}</strong><br>
+                            <small>Dosage: ${med.dosage} | ${med.frequency} | ${med.duration}</small><br>
+                            <small>Instructions: ${med.instructions}</small>
+                        </div>`;
+                    });
+                    html += `</div>`;
+                }
+                
+                if (prescription.recommended_tests && prescription.recommended_tests.length > 0) {
+                    html += `<div style="margin-bottom: 15px;">
+                        <strong>🧪 Recommended Tests:</strong><br>
+                        ${prescription.recommended_tests.map(t => `• ${t}`).join('<br>')}
+                    </div>`;
+                }
+                
+                if (prescription.lifestyle_advice && prescription.lifestyle_advice.length > 0) {
+                    html += `<div style="margin-bottom: 15px;">
+                        <strong>🌱 Lifestyle Advice:</strong><br>
+                        ${prescription.lifestyle_advice.map(a => `• ${a}`).join('<br>')}
+                    </div>`;
+                }
+                
+                if (prescription.disclaimer) {
+                    html += `<div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; font-size: 0.85em;">
+                        <strong>⚠️ Disclaimer:</strong><br>
+                        ${prescription.disclaimer}
+                    </div>`;
+                }
+                
+                html += `</div>`;
+                return html;
+            }
+
+            async function sendTextToPrescription(message) {
+                try {
+                    addMessage("Processing your message and generating prescription...", false);
+                    
+                    const response = await fetch(`${API_BASE_URL}/text-prescription`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ text: message })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // Remove the processing message
+                        const messages = chatMessages.children;
+                        if (messages[messages.length - 1].textContent.includes("Processing")) {
+                            messages[messages.length - 1].remove();
+                        }
+                        
+                        addMessage(result.prescription, false, true);
+                    } else {
+                        throw new Error(result.message || 'Failed to process text');
+                    }
+                } catch (error) {
+                    console.error('Error sending text to backend:', error);
+                    addMessage(`Sorry, I encountered an error while processing your message: ${error.message}`, false);
+                }
+            }
+
+            function handleSendMessage() {
+                const message = chatInput.value.trim();
+                if (!message) return;
+
+                addMessage(message, true);
+                chatInput.value = '';
+
+                // Send to backend for prescription generation
+                sendTextToPrescription(message);
+            }
+
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSendMessage();
+                }
+            });
+
+            sendBtn.addEventListener('click', handleSendMessage);
+
+            voiceBtn.addEventListener('click', function() {
+                if (!isRecording) {
+                    startRecording();
+                } else {
+                    stopRecording();
+                }
+            });
+
+            let mediaRecorder;
+            let audioChunks = [];
+            let recordingStartTime;
+
+            function startRecording() {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then(function(stream) {
+                            isRecording = true;
+                            voiceBtn.classList.add('recording');
+                            voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                            voiceStatus.textContent = 'Recording... Click to stop';
+                            voiceStatus.classList.add('recording');
+                            
+                            recordingStartTime = Date.now();
+                            audioChunks = [];
+                            
+                            mediaRecorder = new MediaRecorder(stream, {
+                                mimeType: 'audio/webm;codecs=opus'
+                            });
+                            
+                            mediaRecorder.ondataavailable = function(event) {
+                                audioChunks.push(event.data);
+                            };
+                            
+                            mediaRecorder.onstop = function() {
+                                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                                processRecording(audioBlob);
+                                
+                                // Stop all tracks
+                                stream.getTracks().forEach(track => track.stop());
+                            };
+                            
+                            mediaRecorder.start();
+                        })
+                        .catch(function(err) {
+                            console.error('Error accessing microphone:', err);
+                            voiceStatus.textContent = 'Error: Cannot access microphone';
+                            setTimeout(() => {
+                                voiceStatus.textContent = 'Click the microphone to start voice input';
+                            }, 3000);
+                        });
+                } else {
+                    voiceStatus.textContent = 'Error: Microphone not supported';
+                    setTimeout(() => {
+                        voiceStatus.textContent = 'Click the microphone to start voice input';
+                    }, 3000);
+                }
+            }
+
+            function stopRecording() {
+                if (mediaRecorder && isRecording) {
+                    mediaRecorder.stop();
+                    isRecording = false;
+                    voiceBtn.classList.remove('recording');
+                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    voiceStatus.textContent = 'Processing voice input...';
+                    voiceStatus.classList.remove('recording');
+                }
+            }
+
+            async function processRecording(audioBlob) {
+                const recordingDuration = Date.now() - recordingStartTime;
+                
+                try {
+                    // Show processing message
+                    addMessage("Processing your voice recording...", false);
+                    
+                    // Create FormData to send audio file
+                    const formData = new FormData();
+                    formData.append('audio_file', audioBlob, 'voice-recording.mp3');
+                    
+                    // Send to backend
+                    const response = await fetch(`${API_BASE_URL}/process-voice`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // Remove the processing message
+                        const messages = chatMessages.children;
+                        if (messages[messages.length - 1].textContent.includes("Processing")) {
+                            messages[messages.length - 1].remove();
+                        }
+                        
+                        // Show transcript
+                        addMessage(`🎙️ Transcript: "${result.transcript}"`, false);
+                        
+                        // Show prescription
+                        addMessage(result.prescription, false, true);
+                        
+                        voiceStatus.textContent = `Voice processed successfully! Duration: ${Math.floor(recordingDuration / 1000)}s`;
+                    } else {
+                        throw new Error(result.message || 'Failed to process voice');
+                    }
+                    
+                } catch (error) {
+                    console.error('Error processing voice:', error);
+                    
+                    // Remove processing message if exists
+                    const messages = chatMessages.children;
+                    if (messages[messages.length - 1].textContent.includes("Processing")) {
+                        messages[messages.length - 1].remove();
+                    }
+                    
+                    addMessage(`Sorry, I couldn't process your voice recording: ${error.message}. Please check if the backend server is running on ${API_BASE_URL}`, false);
+                    voiceStatus.textContent = `Error processing voice: ${error.message}`;
+                }
+                
+                // Reset status after delay
+                setTimeout(() => {
+                    voiceStatus.textContent = 'Click the microphone to start voice input';
+                }, 5000);
+            }
+
+            function convertToMP3(audioBlob) {
+                try {
+                    // Create a new blob with MP3 MIME type
+                    const mp3Blob = new Blob([audioBlob], { type: 'audio/mp3' });
+                    return Promise.resolve(mp3Blob);
+                } catch (error) {
+                    console.error('Error converting to MP3:', error);
+                    return Promise.resolve(audioBlob);
+                }
+            }
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            try {
+                const result = await window.AuthUtils.auth.signOut();
+                if (result.success) {
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+
+        window.AuthUtils.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT' || !session) {
+                window.location.href = 'loginform.html';
+            }
+        });
+    </script>
+</body>
+</html> 

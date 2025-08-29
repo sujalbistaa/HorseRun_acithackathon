@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swasthya AI - My Prescriptions</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="supabase-config.js"></script>
+    <style>
+        :root {
+            --dark-blue: #0a1d37;
+            --medium-blue: #1e3a5f;
+            --accent-teal: #00c6a7;
+            --accent-teal-light: #50e3c2;
+            --text-primary: #e6f1ff;
+            --text-secondary: #a8b2d1;
+            --card-bg: rgba(30, 58, 95, 0.15);
+            --success-green: #10b981;
+            --warning-yellow: #f59e0b;
+            --danger-red: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-blue) 0%, var(--medium-blue) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .header {
+            background: rgba(10, 25, 41, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 198, 167, 0.1);
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--accent-teal);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link.active {
+            color: var(--accent-teal);
+            background: rgba(0, 198, 167, 0.15);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: var(--accent-teal);
+            color: var(--dark-blue);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-top: 100px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--accent-teal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .page-header h1 i {
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .stats-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(0, 198, 167, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 25px;
+            background: rgba(0, 198, 167, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 198, 167, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            background: rgba(0, 198, 167, 0.1);
+            border-color: var(--accent-teal);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-teal);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .search-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(0, 198, 167, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid rgba(0, 198, 167, 0.3);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-teal);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .tabs-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(0, 198, 167, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .tabs-header {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(0, 198, 167, 0.2);
+            padding-bottom: 20px;
+        }
+
+        .tab-btn {
+            background: rgba(0, 198, 167, 0.1);
+            color: var(--text-secondary);
+            border: 1px solid rgba(0, 198, 167, 0.3);
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-teal);
+            color: var(--dark-blue);
+            border-color: var(--accent-teal);
+        }
+
+        .tab-btn:hover {
+            background: rgba(0, 198, 167, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .prescriptions-grid {
+            display: grid;
+            gap: 25px;
+        }
+
+        .prescription-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(0, 198, 167, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .prescription-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-teal);
+            box-shadow: 0 15px 30px rgba(0, 198, 167, 0.2);
+        }
+
+        .prescription-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .medication-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .medication-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 198, 167, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--accent-teal);
+        }
+
+        .medication-icon i {
+            font-size: 1.5rem;
+            color: var(--accent-teal);
+        }
+
+        .medication-details h3 {
+            font-size: 1.5rem;
+            color: var(--accent-teal);
+            margin-bottom: 8px;
+        }
+
+        .medication-details p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .prescription-status {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .status-active {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .status-expiring {
+            background: var(--warning-yellow);
+            color: var(--dark-blue);
+        }
+
+        .status-expired {
+            background: var(--danger-red);
+            color: white;
+        }
+
+        .prescription-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .prescription-details {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+        }
+
+        .detail-item i {
+            color: var(--accent-teal);
+            width: 20px;
+            text-align: center;
+        }
+
+        .detail-item span {
+            font-weight: 500;
+        }
+
+        .prescription-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-section h4 {
+            color: var(--accent-teal);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .info-section p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .warnings-list {
+            list-style: none;
+        }
+
+        .warnings-list li {
+            color: var(--warning-yellow);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warnings-list li::before {
+            content: '•';
+            color: var(--warning-yellow);
+        }
+
+        .side-effects {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .side-effect-tag {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .no-prescriptions {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-prescriptions i {
+            font-size: 4rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .no-prescriptions h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-menu {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .user-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .main-content {
+                margin-top: 150px;
+            }
+
+            .page-header h1 {
+                font-size: 2.5rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .prescription-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .prescription-content {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs-header {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">Swasthya<span>AI</span></a>
+            
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="ai-chat.html" class="nav-link">
+                    <i class="fas fa-robot"></i>
+                    AI Chat
+                </a>
+                <a href="doctors.html" class="nav-link">
+                    <i class="fas fa-user-md"></i>
+                    Doctors
+                </a>
+                <a href="appointments.html" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    Appointments
+                </a>
+                <a href="prescriptions.html" class="nav-link active">
+                    <i class="fas fa-pills"></i>
+                    Prescriptions
+                </a>
+            </nav>
+
+            <div class="user-info">
+                <span id="userEmail">Loading...</span>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>
+                <i class="fas fa-pills"></i>
+                My Prescriptions
+            </h1>
+            <p>Manage your medications and prescription history</p>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Active</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">Expiring Soon</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">Expired</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Total</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput"
+                    placeholder="Search prescriptions..."
+                >
+            </div>
+        </div>
+
+        <div class="tabs-section">
+            <div class="tabs-header">
+                <button class="tab-btn active" data-tab="current">
+                    <i class="fas fa-pills"></i>
+                    Current Prescriptions
+                </button>
+                <button class="tab-btn" data-tab="history">
+                    <i class="fas fa-history"></i>
+                    Prescription History
+                </button>
+            </div>
+
+            <div class="tab-content active" id="currentTab">
+                <div class="prescriptions-grid" id="currentPrescriptions">
+                    <!-- Current prescriptions will be populated here -->
+                </div>
+            </div>
+
+            <div class="tab-content" id="historyTab">
+                <div class="prescriptions-grid" id="historyPrescriptions">
+                    <!-- Prescription history will be populated here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Mock prescription data
+        const currentPrescriptions = [
+            {
+                id: 1,
+                medication: "Lisinopril",
+                dosage: "10mg",
+                frequency: "Once daily",
+                prescribedBy: "Dr. Sarah Johnson",
+                prescribedDate: "2024-01-15",
+                expiryDate: "2024-07-15",
+                refillsLeft: 3,
+                status: "active",
+                instructions: "Take with food in the morning",
+                sideEffects: ["Dizziness", "Dry cough", "Fatigue"],
+                warnings: ["Avoid potassium supplements", "Monitor blood pressure"],
+                category: "Blood Pressure",
+            },
+            {
+                id: 2,
+                medication: "Metformin",
+                dosage: "500mg",
+                frequency: "Twice daily",
+                prescribedBy: "Dr. Michael Chen",
+                prescribedDate: "2024-01-10",
+                expiryDate: "2024-06-10",
+                refillsLeft: 1,
+                status: "expiring",
+                instructions: "Take with meals",
+                sideEffects: ["Nausea", "Stomach upset", "Diarrhea"],
+                warnings: ["Monitor kidney function", "Avoid alcohol"],
+                category: "Diabetes",
+            },
+            {
+                id: 3,
+                medication: "Atorvastatin",
+                dosage: "20mg",
+                frequency: "Once daily",
+                prescribedBy: "Dr. Emily Rodriguez",
+                prescribedDate: "2023-12-20",
+                expiryDate: "2024-01-20",
+                refillsLeft: 0,
+                status: "expired",
+                instructions: "Take at bedtime",
+                sideEffects: ["Muscle pain", "Headache", "Nausea"],
+                warnings: ["Monitor liver function", "Avoid grapefruit"],
+                category: "Cholesterol",
+            },
+        ];
+
+        const prescriptionHistory = [
+            {
+                id: 4,
+                medication: "Amoxicillin",
+                dosage: "500mg",
+                frequency: "Three times daily",
+                prescribedBy: "Dr. Sarah Johnson",
+                prescribedDate: "2023-11-15",
+                completedDate: "2023-11-25",
+                duration: "10 days",
+                category: "Antibiotic",
+                reason: "Respiratory infection",
+            },
+            {
+                id: 5,
+                medication: "Ibuprofen",
+                dosage: "400mg",
+                frequency: "As needed",
+                prescribedBy: "Dr. Michael Chen",
+                prescribedDate: "2023-10-08",
+                completedDate: "2023-10-20",
+                duration: "12 days",
+                category: "Pain Relief",
+                reason: "Back pain",
+            },
+        ];
+
+        let currentSearchTerm = '';
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const { data: { user }, error } = await window.AuthUtils.auth.getCurrentUser();
+
+                if (error || !user) {
+                    window.location.href = 'loginform.html';
+                    return;
+                }
+
+                document.getElementById('userEmail').textContent = user.email;
+                renderCurrentPrescriptions();
+                renderHistoryPrescriptions();
+                initializeTabs();
+                initializeSearch();
+
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.href = 'loginform.html';
+            }
+        });
+
+        function renderCurrentPrescriptions() {
+            const container = document.getElementById('currentPrescriptions');
+            const filteredPrescriptions = getFilteredPrescriptions(currentPrescriptions);
+            
+            if (filteredPrescriptions.length === 0) {
+                container.innerHTML = `
+                    <div class="no-prescriptions">
+                        <i class="fas fa-pills"></i>
+                        <h3>No current prescriptions found</h3>
+                        <p>You don't have any active prescriptions at the moment.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredPrescriptions.map(prescription => `
+                <div class="prescription-card">
+                    <div class="prescription-header">
+                        <div class="medication-info">
+                            <div class="medication-icon">
+                                <i class="fas fa-pills"></i>
+                            </div>
+                            <div class="medication-details">
+                                <h3>${prescription.medication}</h3>
+                                <p>${prescription.dosage} • ${prescription.frequency}</p>
+                            </div>
+                        </div>
+                        <div class="prescription-status status-${prescription.status}">
+                            ${prescription.status}
+                        </div>
+                    </div>
+                    
+                    <div class="prescription-content">
+                        <div class="prescription-details">
+                            <div class="detail-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Prescribed: ${prescription.prescribedDate}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>Expires: ${prescription.expiryDate}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-sync"></i>
+                                <span>Refills left: ${prescription.refillsLeft}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-user-md"></i>
+                                <span>Prescribed by: ${prescription.prescribedBy}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="prescription-info">
+                            <div class="info-section">
+                                <h4><i class="fas fa-heart"></i> Instructions</h4>
+                                <p>${prescription.instructions}</p>
+                            </div>
+                            
+                            ${prescription.warnings.length > 0 ? `
+                            <div class="info-section">
+                                <h4><i class="fas fa-exclamation-triangle"></i> Warnings</h4>
+                                <ul class="warnings-list">
+                                    ${prescription.warnings.map(warning => `<li>${warning}</li>`).join('')}
+                                </ul>
+                            </div>
+                            ` : ''}
+                            
+                            ${prescription.sideEffects.length > 0 ? `
+                            <div class="info-section">
+                                <h4><i class="fas fa-shield-alt"></i> Side Effects</h4>
+                                <div class="side-effects">
+                                    ${prescription.sideEffects.map(effect => `<span class="side-effect-tag">${effect}</span>`).join('')}
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderHistoryPrescriptions() {
+            const container = document.getElementById('historyPrescriptions');
+            const filteredHistory = getFilteredPrescriptions(prescriptionHistory);
+            
+            if (filteredHistory.length === 0) {
+                container.innerHTML = `
+                    <div class="no-prescriptions">
+                        <i class="fas fa-history"></i>
+                        <h3>No prescription history found</h3>
+                        <p>You don't have any completed prescriptions in your history.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredHistory.map(prescription => `
+                <div class="prescription-card">
+                    <div class="prescription-header">
+                        <div class="medication-info">
+                            <div class="medication-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="medication-details">
+                                <h3>${prescription.medication}</h3>
+                                <p>${prescription.dosage} • ${prescription.frequency}</p>
+                            </div>
+                        </div>
+                        <div class="prescription-status status-active">
+                            Completed
+                        </div>
+                    </div>
+                    
+                    <div class="prescription-content">
+                        <div class="prescription-details">
+                            <div class="detail-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Prescribed: ${prescription.prescribedDate}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Completed: ${prescription.completedDate}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>Duration: ${prescription.duration}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-user-md"></i>
+                                <span>Prescribed by: ${prescription.prescribedBy}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="prescription-info">
+                            <div class="info-section">
+                                <h4><i class="fas fa-info-circle"></i> Reason for Prescription</h4>
+                                <p>${prescription.reason}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getFilteredPrescriptions(prescriptions) {
+            if (!currentSearchTerm) return prescriptions;
+            
+            return prescriptions.filter(prescription =>
+                prescription.medication.toLowerCase().includes(currentSearchTerm.toLowerCase()) ||
+                prescription.prescribedBy.toLowerCase().includes(currentSearchTerm.toLowerCase()) ||
+                prescription.category.toLowerCase().includes(currentSearchTerm.toLowerCase())
+            );
+        }
+
+        function initializeTabs() {
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const targetTab = this.dataset.tab;
+                    
+                    // Update active tab button
+                    tabButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update active tab content
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(targetTab + 'Tab').classList.add('active');
+                });
+            });
+        }
+
+        function initializeSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', function() {
+                currentSearchTerm = this.value;
+                renderCurrentPrescriptions();
+                renderHistoryPrescriptions();
+            });
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            try {
+                const result = await window.AuthUtils.auth.signOut();
+                if (result.success) {
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+
+        window.AuthUtils.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT' || !session) {
+                window.location.href = 'loginform.html';
+            }
+        });
+    </script>
+</body>
+</html> 

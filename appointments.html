@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swasthya AI - My Appointments</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="supabase-config.js"></script>
+    <style>
+        :root {
+            --dark-blue: #0a1d37;
+            --medium-blue: #1e3a5f;
+            --accent-teal: #00c6a7;
+            --accent-teal-light: #50e3c2;
+            --text-primary: #e6f1ff;
+            --text-secondary: #a8b2d1;
+            --card-bg: rgba(30, 58, 95, 0.15);
+            --success-green: #10b981;
+            --warning-yellow: #f59e0b;
+            --danger-red: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-blue) 0%, var(--medium-blue) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .header {
+            background: rgba(10, 25, 41, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 198, 167, 0.1);
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--accent-teal);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link.active {
+            color: var(--accent-teal);
+            background: rgba(0, 198, 167, 0.15);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: var(--accent-teal);
+            color: var(--dark-blue);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-top: 100px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--accent-teal);
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+
+        .book-new-btn {
+            background: var(--accent-teal);
+            color: var(--dark-blue);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .book-new-btn:hover {
+            background: var(--accent-teal-light);
+            transform: translateY(-2px);
+        }
+
+        .filters-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(0, 198, 167, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .filters-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-icon {
+            color: var(--accent-teal);
+            font-size: 1.2rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(0, 198, 167, 0.1);
+            color: var(--text-secondary);
+            border: 1px solid rgba(0, 198, 167, 0.3);
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn.active {
+            background: var(--accent-teal);
+            color: var(--dark-blue);
+            border-color: var(--accent-teal);
+        }
+
+        .filter-btn:hover {
+            background: rgba(0, 198, 167, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .appointments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .appointment-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(0, 198, 167, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .appointment-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-teal);
+            box-shadow: 0 15px 30px rgba(0, 198, 167, 0.2);
+        }
+
+        .appointment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .doctor-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .doctor-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-teal);
+        }
+
+        .doctor-details h3 {
+            font-size: 1.4rem;
+            color: var(--accent-teal);
+            margin-bottom: 5px;
+        }
+
+        .doctor-specialization {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .appointment-status {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .status-upcoming {
+            background: var(--warning-yellow);
+            color: var(--dark-blue);
+        }
+
+        .status-completed {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .status-cancelled {
+            background: var(--danger-red);
+            color: white;
+        }
+
+        .appointment-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+        }
+
+        .detail-item i {
+            color: var(--accent-teal);
+            width: 20px;
+            text-align: center;
+        }
+
+        .detail-item span {
+            font-weight: 500;
+        }
+
+        .appointment-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .action-btn.primary {
+            background: var(--accent-teal);
+            color: var(--dark-blue);
+        }
+
+        .action-btn.primary:hover {
+            background: var(--accent-teal-light);
+            transform: translateY(-2px);
+        }
+
+        .action-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .action-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .no-appointments {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-appointments i {
+            font-size: 4rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .no-appointments h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .no-appointments p {
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-menu {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .user-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .main-content {
+                margin-top: 150px;
+            }
+
+            .page-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .appointment-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .appointment-details {
+                grid-template-columns: 1fr;
+            }
+
+            .appointment-actions {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">Swasthya<span>AI</span></a>
+            
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="ai-chat.html" class="nav-link">
+                    <i class="fas fa-robot"></i>
+                    AI Chat
+                </a>
+                <a href="doctors.html" class="nav-link">
+                    <i class="fas fa-user-md"></i>
+                    Doctors
+                </a>
+                <a href="appointments.html" class="nav-link active">
+                    <i class="fas fa-calendar-alt"></i>
+                    Appointments
+                </a>
+                <a href="prescriptions.html" class="nav-link">
+                    <i class="fas fa-pills"></i>
+                    Prescriptions
+                </a>
+            </nav>
+
+            <div class="user-info">
+                <span id="userEmail">Loading...</span>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>My Appointments</h1>
+            <p>Manage your upcoming and past medical appointments</p>
+            <a href="doctors.html" class="book-new-btn">
+                <i class="fas fa-plus"></i>
+                Book New Appointment
+            </a>
+        </div>
+
+        <div class="filters-section">
+            <div class="filters-content">
+                <i class="fas fa-filter filter-icon"></i>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-status="all">All</button>
+                    <button class="filter-btn" data-status="upcoming">Upcoming</button>
+                    <button class="filter-btn" data-status="completed">Completed</button>
+                    <button class="filter-btn" data-status="cancelled">Cancelled</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="appointments-list" id="appointmentsList">
+            <!-- Appointments will be populated here -->
+        </div>
+
+        <div class="no-appointments" id="noAppointments" style="display: none;">
+            <i class="fas fa-calendar"></i>
+            <h3>No appointments found</h3>
+            <p>You don't have any appointments scheduled yet.</p>
+            <a href="doctors.html" class="book-new-btn">
+                <i class="fas fa-plus"></i>
+                Book Your First Appointment
+            </a>
+        </div>
+    </main>
+
+    <script>
+        // Mock appointments data
+        const mockAppointments = [
+            {
+                id: "1",
+                doctorName: "Dr. Sarah Johnson",
+                specialization: "Cardiology",
+                date: "2024-01-15",
+                time: "10:00 AM",
+                type: "in-person",
+                status: "upcoming",
+                location: "Downtown Medical Center, Room 205",
+                notes: "Annual heart checkup",
+                doctorImage: "/professional-female-doctor.png",
+            },
+            {
+                id: "2",
+                doctorName: "Dr. Michael Chen",
+                specialization: "Dermatology",
+                date: "2024-01-18",
+                time: "2:30 PM",
+                type: "video",
+                status: "upcoming",
+                notes: "Follow-up on skin condition",
+                doctorImage: "/professional-male-doctor.png",
+            },
+            {
+                id: "3",
+                doctorName: "Dr. Emily Rodriguez",
+                specialization: "Pediatrics",
+                date: "2024-01-10",
+                time: "9:15 AM",
+                type: "in-person",
+                status: "completed",
+                location: "Children's Health Center",
+                notes: "Routine vaccination",
+                doctorImage: "/professional-female-pediatrician.png",
+            },
+            {
+                id: "4",
+                doctorName: "Dr. James Wilson",
+                specialization: "Orthopedics",
+                date: "2024-01-22",
+                time: "11:45 AM",
+                type: "in-person",
+                status: "upcoming",
+                location: "Sports Medicine Institute",
+                notes: "Knee injury consultation",
+                doctorImage: "/professional-male-orthopedic-doctor.png",
+            },
+            {
+                id: "5",
+                doctorName: "Dr. Robert Taylor",
+                specialization: "Internal Medicine",
+                date: "2024-01-05",
+                time: "3:00 PM",
+                type: "video",
+                status: "cancelled",
+                notes: "General health consultation",
+                doctorImage: "/professional-male-internal-medicine-doctor.png",
+            },
+        ];
+
+        let currentStatusFilter = 'all';
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const { data: { user }, error } = await window.AuthUtils.auth.getCurrentUser();
+
+                if (error || !user) {
+                    window.location.href = 'loginform.html';
+                    return;
+                }
+
+                document.getElementById('userEmail').textContent = user.email;
+                renderAppointments();
+                initializeFilters();
+
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.href = 'loginform.html';
+            }
+        });
+
+        function renderAppointments() {
+            const appointmentsList = document.getElementById('appointmentsList');
+            const noAppointments = document.getElementById('noAppointments');
+            
+            const filteredAppointments = getFilteredAppointments();
+            
+            if (filteredAppointments.length === 0) {
+                appointmentsList.style.display = 'none';
+                noAppointments.style.display = 'block';
+                return;
+            }
+
+            appointmentsList.style.display = 'flex';
+            noAppointments.style.display = 'none';
+
+            appointmentsList.innerHTML = filteredAppointments.map(appointment => `
+                <div class="appointment-card">
+                    <div class="appointment-header">
+                        <div class="doctor-info">
+                            <img src="${appointment.doctorImage || 'https://via.placeholder.com/60x60/00c6a7/ffffff?text=DR'}" 
+                                 alt="${appointment.doctorName}" 
+                                 class="doctor-avatar">
+                            <div class="doctor-details">
+                                <h3>${appointment.doctorName}</h3>
+                                <div class="doctor-specialization">${appointment.specialization}</div>
+                            </div>
+                        </div>
+                        <div class="appointment-status status-${appointment.status}">
+                            ${appointment.status}
+                        </div>
+                    </div>
+                    
+                    <div class="appointment-details">
+                        <div class="detail-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>${formatDate(appointment.date)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-clock"></i>
+                            <span>${appointment.time}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="${appointment.type === 'video' ? 'fas fa-video' : 'fas fa-map-marker-alt'}"></i>
+                            <span>${appointment.type === 'video' ? 'Video Call' : appointment.location}</span>
+                        </div>
+                        ${appointment.notes ? `
+                        <div class="detail-item">
+                            <i class="fas fa-sticky-note"></i>
+                            <span>${appointment.notes}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    ${appointment.status === 'upcoming' ? `
+                    <div class="appointment-actions">
+                        ${appointment.type === 'video' ? `
+                        <button class="action-btn primary" onclick="joinCall('${appointment.id}')">
+                            <i class="fas fa-video"></i>
+                            Join Call
+                        </button>
+                        ` : `
+                        <button class="action-btn primary" onclick="getDirections('${appointment.id}')">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Get Directions
+                        </button>
+                        `}
+                        <button class="action-btn secondary" onclick="rescheduleAppointment('${appointment.id}')">
+                            <i class="fas fa-calendar-plus"></i>
+                            Reschedule
+                        </button>
+                        <button class="action-btn secondary" onclick="cancelAppointment('${appointment.id}')">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </button>
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function getFilteredAppointments() {
+            if (currentStatusFilter === 'all') {
+                return mockAppointments;
+            }
+            return mockAppointments.filter(appointment => 
+                appointment.status === currentStatusFilter
+            );
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+            });
+        }
+
+        function initializeFilters() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    currentStatusFilter = this.dataset.status;
+                    renderAppointments();
+                });
+            });
+        }
+
+        function joinCall(appointmentId) {
+            const appointment = mockAppointments.find(a => a.id === appointmentId);
+            if (appointment) {
+                alert(`Joining video call with ${appointment.doctorName}...\nThis would open a video call interface in a real application.`);
+            }
+        }
+
+        function getDirections(appointmentId) {
+            const appointment = mockAppointments.find(a => a.id === appointmentId);
+            if (appointment) {
+                alert(`Getting directions to ${appointment.location}...\nThis would open a maps application in a real application.`);
+            }
+        }
+
+        function rescheduleAppointment(appointmentId) {
+            const appointment = mockAppointments.find(a => a.id === appointmentId);
+            if (appointment) {
+                alert(`Rescheduling appointment with ${appointment.doctorName}...\nThis would open a rescheduling form in a real application.`);
+            }
+        }
+
+        function cancelAppointment(appointmentId) {
+            const appointment = mockAppointments.find(a => a.id === appointmentId);
+            if (appointment) {
+                if (confirm(`Are you sure you want to cancel your appointment with ${appointment.doctorName}?`)) {
+                    alert(`Appointment cancelled successfully.\nThis would update the appointment status in a real application.`);
+                }
+            }
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            try {
+                const result = await window.AuthUtils.auth.signOut();
+                if (result.success) {
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+
+        window.AuthUtils.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT' || !session) {
+                window.location.href = 'loginform.html';
+            }
+        });
+    </script>
+</body>
+</html> 

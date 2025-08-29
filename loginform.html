@@ -426,14 +426,18 @@
 
                     // Redirect to appropriate dashboard based on user role
                     setTimeout(() => {
-                        const userRole = result.data.user.user_metadata?.role || result.data.user.user_metadata?.user_type;
+                        const userRole = result.data.user.user_metadata?.role || 
+                                       result.data.user.user_metadata?.user_type ||
+                                       result.data.user.user_metadata?.account_type;
                         
-                        if (userRole === 'patient') {
-                            window.location.href = 'patient-dashboard.html';
-                        } else if (userRole === 'doctor') {
+                        console.log('User role detected:', userRole);
+                        
+                        if (userRole === 'doctor' || userRole === 'physician') {
                             window.location.href = 'doctor-dashboard.html';
+                        } else if (userRole === 'patient' || userRole === 'user') {
+                            window.location.href = 'dashboard.html';
                         } else {
-                            // Fallback to general dashboard
+                            // Fallback to general dashboard for users without role
                             window.location.href = 'dashboard.html';
                         }
                     }, 1500);
@@ -475,13 +479,18 @@
                     // User is already logged in, redirect to appropriate dashboard
                     window.AuthUtils.utils.showMessage('You are already logged in!', 'success');
                     setTimeout(() => {
-                        const userRole = user.user_metadata?.role || user.user_metadata?.user_type;
+                        const userRole = user.user_metadata?.role || 
+                                       user.user_metadata?.user_type ||
+                                       user.user_metadata?.account_type;
                         
-                        if (userRole === 'patient') {
-                            window.location.href = 'patient-dashboard.html';
-                        } else if (userRole === 'doctor') {
+                        console.log('Existing user role detected:', userRole);
+                        
+                        if (userRole === 'doctor' || userRole === 'physician') {
                             window.location.href = 'doctor-dashboard.html';
+                        } else if (userRole === 'patient' || userRole === 'user') {
+                            window.location.href = 'dashboard.html';
                         } else {
+                            // Default to patient dashboard for users without role
                             window.location.href = 'dashboard.html';
                         }
                     }, 1000);

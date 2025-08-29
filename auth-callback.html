@@ -73,13 +73,28 @@
                     
                     if (isGoogleUser && !hasProfile) {
                         // Redirect Google users without profile to onboarding
+                        console.log('Google user without profile, redirecting to onboarding');
                         setTimeout(() => {
                             window.location.href = 'onboarding.html';
                         }, 1500);
                     } else {
-                        // Redirect to dashboard for existing users or email/password users
+                        // Check user role and redirect accordingly
+                        console.log('User metadata:', data.session.user.user_metadata);
+                        console.log('App metadata:', data.session.user.app_metadata);
+                        
+                        const userRole = data.session.user.user_metadata?.role || 
+                                       data.session.user.user_metadata?.user_type ||
+                                       data.session.user.user_metadata?.account_type;
+                        
+                        console.log('User role detected:', userRole);
+                        
                         setTimeout(() => {
-                            window.location.href = 'dashboard.html';
+                            if (userRole === 'doctor' || userRole === 'physician') {
+                                window.location.href = 'doctor-dashboard.html';
+                            } else {
+                                // Default to patient dashboard for patients and new users
+                                window.location.href = 'dashboard.html';
+                            }
                         }, 1500);
                     }
                 } else {
